@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tank Runner 3D - Do hoa may tinh</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --panel: rgba(15, 23, 18, 0.78);
+      --panel-strong: rgba(8, 14, 10, 0.9);
+      --line: rgba(218, 230, 196, 0.22);
+      --text: #f4f6df;
+      --muted: #bec7a5;
+      --accent: #e4c46a;
+      --danger: #ff746d;
+      --ok: #96d277;
+      --field: rgba(255, 255, 255, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #0b120d;
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    button,
+    select,
+    input {
+      font: inherit;
+    }
+
+    .hud {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .topbar {
+      position: absolute;
+      top: 14px;
+      left: 16px;
+      right: 16px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .brand,
+    .stats,
+    .tools {
+      pointer-events: auto;
+      backdrop-filter: blur(14px);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.2);
+    }
+
+    .brand {
+      max-width: min(540px, calc(100vw - 32px));
+      padding: 12px 14px;
+      border-radius: 8px;
+    }
+
+    h1 {
+      margin: 0 0 4px;
+      font-size: clamp(18px, 2vw, 26px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .stats {
+      min-width: 292px;
+      border-radius: 8px;
+      padding: 10px 12px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .stat {
+      min-width: 0;
+    }
+
+    .stat span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .stat strong {
+      display: block;
+      margin-top: 2px;
+      font-size: 19px;
+      line-height: 1;
+    }
+
+    .tools {
+      position: absolute;
+      top: 108px;
+      left: 16px;
+      width: min(390px, calc(100vw - 32px));
+      max-height: calc(100vh - 132px);
+      overflow: auto;
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    details {
+      border-top: 1px solid var(--line);
+      padding: 8px 0;
+    }
+
+    details:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 13px;
+      list-style-position: inside;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 116px 1fr;
+      gap: 8px;
+      align-items: center;
+      margin-top: 8px;
+    }
+
+    .row label,
+    .inline-label {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.2;
+    }
+
+    .inline {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    select,
+    input[type="file"],
+    button {
+      min-height: 32px;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+      background: var(--field);
+      color: var(--text);
+      padding: 5px 8px;
+    }
+
+    input[type="file"] {
+      width: 100%;
+      min-width: 0;
+      font-size: 12px;
+    }
+
+    button {
+      cursor: pointer;
+      background: rgba(228, 196, 106, 0.16);
+      transition: background 0.15s ease, transform 0.15s ease;
+    }
+
+    button:hover {
+      background: rgba(228, 196, 106, 0.28);
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .segmented button.active {
+      background: rgba(150, 210, 119, 0.28);
+      border-color: rgba(150, 210, 119, 0.55);
+      color: #eaffdd;
+    }
+
+    .hint {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .center-message {
+      position: absolute;
+      left: 50%;
+      bottom: 34px;
+      transform: translateX(-50%);
+      pointer-events: auto;
+      width: min(560px, calc(100vw - 32px));
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--panel-strong);
+      text-align: center;
+      line-height: 1.45;
+    }
+
+    .center-message.hidden {
+      display: none;
+    }
+
+    .danger {
+      color: var(--danger);
+    }
+
+    .ok {
+      color: var(--ok);
+    }
+
+    @media (max-width: 760px) {
+      .topbar {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        min-width: 0;
+        width: min(100%, 390px);
+      }
+
+      .tools {
+        top: auto;
+        bottom: 96px;
+        max-height: 42vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="hud">
+    <div class="topbar">
+      <section class="brand" aria-label="Ten game">
+        <h1>Tank Runner 3D: Duong Truong Son</h1>
+        <p class="subtitle">A/D doi lan, Space ban. Game chay vo han voi xe tang, ho bom, dat da, ke dich va bo cong cu kiem tra yeu cau do an DHMT.</p>
+      </section>
+
+      <section class="stats" aria-label="Thong so game">
+        <div class="stat"><span>Diem</span><strong id="score">0</strong></div>
+        <div class="stat"><span>Mau</span><strong id="health">100</strong></div>
+        <div class="stat"><span>Toc do</span><strong id="speed">1.0x</strong></div>
+      </section>
+    </div>
+
+    <aside class="tools" aria-label="Cong cu do hoa">
+      <details open>
+        <summary>Game</summary>
+        <div class="inline">
+          <button id="startBtn" type="button">Bat dau</button>
+          <button id="pauseBtn" type="button">Tam dung</button>
+          <button id="restartBtn" type="button">Choi lai</button>
+        </div>
+        <p class="hint">Tank dung primitive geometry de nhom co the ve tay/chinh sua. Banh xe va banh xich chuyen dong lien tuc.</p>
+      </details>
+
+      <details open>
+        <summary>Kieu ve point / line / solid</summary>
+        <div class="segmented" id="renderMode">
+          <button type="button" data-mode="point">Point</button>
+          <button type="button" data-mode="line">Line</button>
+          <button class="active" type="button" data-mode="solid">Solid</button>
+        </div>
+      </details>
+
+      <details>
+        <summary>Camera phoi canh</summary>
+        <div class="row"><label for="camX">Camera X</label><input id="camX" type="range" min="-18" max="18" step="0.1" value="0"></div>
+        <div class="row"><label for="camY">Camera Y</label><input id="camY" type="range" min="3" max="18" step="0.1" value="7.2"></div>
+        <div class="row"><label for="camZ">Camera Z</label><input id="camZ" type="range" min="7" max="24" step="0.1" value="14"></div>
+        <div class="row"><label for="near">Near</label><input id="near" type="range" min="0.1" max="5" step="0.1" value="0.1"></div>
+        <div class="row"><label for="far">Far</label><input id="far" type="range" min="80" max="600" step="5" value="360"></div>
+      </details>
+
+      <details>
+        <summary>Bien doi affine</summary>
+        <div class="row">
+          <label for="targetObject">Doi tuong</label>
+          <select id="targetObject">
+            <option value="tank">Xe tank</option>
+            <option value="showcase">Cum khoi co ban</option>
+            <option value="road">Mat duong</option>
+          </select>
+        </div>
+        <div class="row"><label for="tx">Tinh tien X</label><input id="tx" type="range" min="-8" max="8" step="0.1" value="0"></div>
+        <div class="row"><label for="ty">Tinh tien Y</label><input id="ty" type="range" min="-1" max="5" step="0.1" value="0"></div>
+        <div class="row"><label for="tz">Tinh tien Z</label><input id="tz" type="range" min="-8" max="8" step="0.1" value="0"></div>
+        <div class="row"><label for="rx">Quay X</label><input id="rx" type="range" min="-180" max="180" step="1" value="0"></div>
+        <div class="row"><label for="ry">Quay Y</label><input id="ry" type="range" min="-180" max="180" step="1" value="0"></div>
+        <div class="row"><label for="rz">Quay Z</label><input id="rz" type="range" min="-180" max="180" step="1" value="0"></div>
+        <div class="row"><label for="scale">Scale</label><input id="scale" type="range" min="0.35" max="2.2" step="0.05" value="1"></div>
+        <div class="inline">
+          <button id="resetTransform" type="button">Reset affine</button>
+        </div>
+      </details>
+
+      <details>
+        <summary>Texture va model tu file</summary>
+        <div class="row">
+          <label for="textureTarget">Gan texture</label>
+          <select id="textureTarget">
+            <option value="tank">Than xe</option>
+            <option value="road">Mat duong</option>
+            <option value="showcase">Khoi co ban</option>
+          </select>
+        </div>
+        <div class="row"><label for="textureInput">Anh bitmap</label><input id="textureInput" type="file" accept="image/*"></div>
+        <div class="row"><label for="modelInput">Mixamo FBX/GLB</label><input id="modelInput" type="file" accept=".fbx,.glb,.gltf,model/gltf-binary,model/gltf+json"></div>
+        <p class="hint">Nap model Mixamo vao day de thay the ke dich mau. Neu file co animation, game se phat animation bang AnimationMixer.</p>
+      </details>
+
+      <details>
+        <summary>Anh sang va bong do</summary>
+        <div class="row"><label for="ambient">Toan phan</label><input id="ambient" type="range" min="0" max="2" step="0.05" value="0.65"></div>
+        <div class="row"><label for="sun">Nguon sang</label><input id="sun" type="range" min="0" max="3" step="0.05" value="1.35"></div>
+        <div class="inline">
+          <label class="inline-label"><input id="shadowToggle" type="checkbox" checked> Bong do</label>
+        </div>
+      </details>
+    </aside>
+
+    <div class="center-message" id="message">
+      Nhan <strong>Bat dau</strong> de vao tran. A/D doi lan, Space ban ke dich, tranh ho bom va dat da.
+    </div>
+  </div>
+
+  <script src="vendor/three/three.min.js"></script>
+  <script src="vendor/three/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="vendor/three/examples/js/libs/fflate.min.js"></script>
+  <script src="vendor/three/examples/js/loaders/FBXLoader.js"></script>
+  <script src="vendor/three/examples/js/utils/SkeletonUtils.js"></script>
+  <script src="vendor/three/examples/js/geometries/TeapotGeometry.js"></script>
+
+  <script>
+    const lanes = [-4, 0, 4];
+    const clock = new THREE.Clock();
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x9ab3b2);
+    scene.fog = new THREE.FogExp2(0x9ab3b2, 0.016);
+
+    const camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 0.1, 360);
+    camera.position.set(0, 7.2, 14);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    document.body.appendChild(renderer.domElement);
+
+    const ambientLight = new THREE.AmbientLight(0xf4f7d2, 0.65);
+    scene.add(ambientLight);
+
+    const sun = new THREE.DirectionalLight(0xfff1ba, 1.35);
+    sun.position.set(-14, 24, 18);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(2048, 2048);
+    sun.shadow.camera.near = 1;
+    sun.shadow.camera.far = 80;
+    sun.shadow.camera.left = -28;
+    sun.shadow.camera.right = 28;
+    sun.shadow.camera.top = 28;
+    sun.shadow.camera.bottom = -28;
+    scene.add(sun);
+
+    const fillLight = new THREE.HemisphereLight(0xc9e7ff, 0x46553a, 0.55);
+    scene.add(fillLight);
+
+    const renderables = new Set();
+    let currentRenderMode = 'solid';
+
+    const materials = {
+      road: new THREE.MeshStandardMaterial({ color: 0x6f5a3a, roughness: 0.95 }),
+      mud: new THREE.MeshStandardMaterial({ color: 0x4b3924, roughness: 1 }),
+      grass: new THREE.MeshStandardMaterial({ color: 0x2e6b3b, roughness: 0.9 }),
+      jungle: new THREE.MeshStandardMaterial({ color: 0x184c31, roughness: 0.85 }),
+      tank: new THREE.MeshStandardMaterial({ color: 0x3d5c2a, roughness: 0.78, metalness: 0.18 }),
+      tankDark: new THREE.MeshStandardMaterial({ color: 0x1d2517, roughness: 0.84, metalness: 0.2 }),
+      tankLight: new THREE.MeshStandardMaterial({ color: 0x60763c, roughness: 0.78, metalness: 0.12 }),
+      metal: new THREE.MeshStandardMaterial({ color: 0x565c54, roughness: 0.56, metalness: 0.5 }),
+      shell: new THREE.MeshStandardMaterial({ color: 0xf7d36d, emissive: 0x6d3e00, emissiveIntensity: 0.35 }),
+      crater: new THREE.MeshStandardMaterial({ color: 0x10100d, roughness: 1 }),
+      rock: new THREE.MeshStandardMaterial({ color: 0x7f7566, roughness: 0.95 }),
+      enemy: new THREE.MeshStandardMaterial({ color: 0x5f7441, roughness: 0.8 }),
+      skin: new THREE.MeshStandardMaterial({ color: 0xb58561, roughness: 0.8 }),
+      red: new THREE.MeshStandardMaterial({ color: 0xac2f26, roughness: 0.7 }),
+      smoke: new THREE.MeshStandardMaterial({ color: 0x77776d, transparent: true, opacity: 0.42, depthWrite: false }),
+      water: new THREE.MeshStandardMaterial({ color: 0x557f80, roughness: 0.25, metalness: 0.05 })
+    };
+
+    function setupMesh(mesh) {
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      if (mesh.material) {
+        const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+        for (const material of mats) {
+          material.userData.baseOpacity = material.opacity;
+          material.userData.baseTransparent = material.transparent;
+        }
+      }
+      const points = new THREE.Points(
+        mesh.geometry,
+        new THREE.PointsMaterial({ color: 0xf6df91, size: 0.075, sizeAttenuation: true })
+      );
+      points.visible = false;
+      mesh.add(points);
+      mesh.userData.points = points;
+      renderables.add(mesh);
+      applyRenderModeToMesh(mesh, currentRenderMode);
+      return mesh;
+    }
+
+    function applyRenderModeToMesh(mesh, mode) {
+      const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+      for (const material of mats) {
+        if (!material) continue;
+        material.wireframe = mode === 'line';
+        material.transparent = mode === 'point' ? true : Boolean(material.userData.baseTransparent);
+        material.opacity = mode === 'point' ? 0.04 : (material.userData.baseOpacity ?? 1);
+        material.needsUpdate = true;
+      }
+      if (mesh.userData.points) {
+        mesh.userData.points.visible = mode === 'point';
+      }
+    }
+
+    function applyRenderMode(mode) {
+      currentRenderMode = mode;
+      renderables.forEach((mesh) => applyRenderModeToMesh(mesh, mode));
+      document.querySelectorAll('#renderMode button').forEach((button) => {
+        button.classList.toggle('active', button.dataset.mode === mode);
+      });
+    }
+
+    function makeBox(w, h, d, material, x = 0, y = 0, z = 0) {
+      const mesh = setupMesh(new THREE.Mesh(new THREE.BoxGeometry(w, h, d), material));
+      mesh.position.set(x, y, z);
+      return mesh;
+    }
+
+    function makeCylinder(radiusTop, radiusBottom, height, radial, material, x = 0, y = 0, z = 0) {
+      const mesh = setupMesh(new THREE.Mesh(new THREE.CylinderGeometry(radiusTop, radiusBottom, height, radial), material));
+      mesh.position.set(x, y, z);
+      return mesh;
+    }
+
+    const world = new THREE.Group();
+    scene.add(world);
+
+    const roadGroup = new THREE.Group();
+    world.add(roadGroup);
+
+    const roadSegments = [];
+    const roadLength = 46;
+    for (let i = 0; i < 5; i++) {
+      const segment = setupMesh(new THREE.Mesh(new THREE.PlaneGeometry(11.5, roadLength, 8, 24), materials.road));
+      segment.rotation.x = -Math.PI / 2;
+      segment.position.z = 12 - i * roadLength;
+      segment.receiveShadow = true;
+      roadGroup.add(segment);
+      roadSegments.push(segment);
+
+      const leftVerge = setupMesh(new THREE.Mesh(new THREE.PlaneGeometry(12, roadLength), materials.grass));
+      leftVerge.rotation.x = -Math.PI / 2;
+      leftVerge.position.set(-11.75, 0.01, segment.position.z);
+      roadGroup.add(leftVerge);
+
+      const rightVerge = leftVerge.clone();
+      rightVerge.material = materials.grass;
+      rightVerge.position.x = 11.75;
+      rightVerge.userData.points = null;
+      setupMesh(rightVerge);
+      roadGroup.add(rightVerge);
+      roadSegments.push(leftVerge, rightVerge);
+    }
+
+    const laneLines = new THREE.Group();
+    roadGroup.add(laneLines);
+    for (let z = -170; z <= 24; z += 8) {
+      for (const x of [-2, 2]) {
+        const dash = makeBox(0.08, 0.02, 3.6, new THREE.MeshStandardMaterial({ color: 0xc8b77a, roughness: 0.9 }), x, 0.035, z);
+        dash.castShadow = false;
+        laneLines.add(dash);
+      }
+    }
+
+    const scenery = new THREE.Group();
+    scene.add(scenery);
+
+    function addTree(x, z, scale = 1) {
+      const trunk = makeCylinder(0.18 * scale, 0.22 * scale, 2.2 * scale, 8, new THREE.MeshStandardMaterial({ color: 0x6f4a2c, roughness: 0.9 }), x, 1.1 * scale, z);
+      const crown = setupMesh(new THREE.Mesh(new THREE.ConeGeometry(1.15 * scale, 2.4 * scale, 7), materials.jungle));
+      crown.position.set(x, 2.75 * scale, z);
+      scenery.add(trunk, crown);
+    }
+
+    for (let i = 0; i < 64; i++) {
+      const side = i % 2 === 0 ? -1 : 1;
+      const x = side * (9 + Math.random() * 16);
+      const z = 18 - Math.random() * 210;
+      addTree(x, z, 0.7 + Math.random() * 0.75);
+    }
+
+    const paddies = new THREE.Group();
+    scene.add(paddies);
+    for (let i = 0; i < 7; i++) {
+      const paddy = setupMesh(new THREE.Mesh(new THREE.PlaneGeometry(9 + Math.random() * 8, 18 + Math.random() * 16), materials.water));
+      paddy.rotation.x = -Math.PI / 2;
+      paddy.position.set((i % 2 ? 1 : -1) * (17 + Math.random() * 8), 0.018, 6 - i * 31);
+      paddies.add(paddy);
+    }
+
+    const smokePuffs = [];
+    for (let i = 0; i < 12; i++) {
+      const puff = setupMesh(new THREE.Mesh(new THREE.SphereGeometry(0.7 + Math.random() * 0.8, 12, 8), materials.smoke));
+      puff.position.set((Math.random() - 0.5) * 28, 3 + Math.random() * 7, -45 - Math.random() * 130);
+      puff.scale.setScalar(1 + Math.random() * 1.4);
+      puff.castShadow = false;
+      puff.receiveShadow = false;
+      scenery.add(puff);
+      smokePuffs.push(puff);
+    }
+
+    const tankBase = new THREE.Group();
+    tankBase.position.set(0, 0, 6.2);
+    scene.add(tankBase);
+
+    const tank = new THREE.Group();
+    tankBase.add(tank);
+    const tankParts = [];
+    const wheelPivots = [];
+
+    function addTankPart(mesh) {
+      tank.add(mesh);
+      tankParts.push(mesh);
+      return mesh;
+    }
+
+    addTankPart(makeBox(2.35, 0.78, 3.25, materials.tank, 0, 0.82, 0));
+    addTankPart(makeBox(2.65, 0.52, 3.55, materials.tankDark, 0, 0.38, 0));
+    addTankPart(makeBox(1.55, 0.55, 1.45, materials.tankLight, 0, 1.38, -0.22));
+
+    const turret = makeCylinder(0.78, 0.92, 0.48, 12, materials.tankLight, 0, 1.74, -0.28);
+    addTankPart(turret);
+
+    const barrelPivot = new THREE.Group();
+    barrelPivot.position.set(0, 1.75, -0.98);
+    tank.add(barrelPivot);
+    const barrel = makeCylinder(0.11, 0.14, 2.55, 12, materials.metal, 0, 0, -1.22);
+    barrel.rotation.x = Math.PI / 2;
+    barrelPivot.add(barrel);
+    tankParts.push(barrel);
+
+    const hatch = makeCylinder(0.34, 0.38, 0.22, 12, materials.tankDark, 0.2, 2.07, -0.18);
+    addTankPart(hatch);
+
+    for (const side of [-1, 1]) {
+      addTankPart(makeBox(0.38, 0.68, 3.65, materials.tankDark, side * 1.38, 0.42, 0));
+      for (const z of [-1.35, -0.48, 0.42, 1.3]) {
+        const pivot = new THREE.Group();
+        pivot.position.set(side * 1.42, 0.42, z);
+        tank.add(pivot);
+        const wheel = makeCylinder(0.34, 0.34, 0.24, 18, materials.metal);
+        wheel.rotation.z = Math.PI / 2;
+        pivot.add(wheel);
+        wheelPivots.push(pivot);
+        tankParts.push(wheel);
+      }
+    }
+
+    const selectionBases = {
+      tank: tankBase,
+      showcase: null,
+      road: roadGroup
+    };
+
+    const showcase = new THREE.Group();
+    showcase.position.set(9.5, 1.25, -18);
+    scene.add(showcase);
+    selectionBases.showcase = showcase;
+
+    const showcaseItems = [
+      setupMesh(new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.2), new THREE.MeshStandardMaterial({ color: 0xd1a85a, roughness: 0.74 }))),
+      setupMesh(new THREE.Mesh(new THREE.SphereGeometry(0.72, 24, 14), new THREE.MeshStandardMaterial({ color: 0x719bc2, roughness: 0.62 }))),
+      setupMesh(new THREE.Mesh(new THREE.ConeGeometry(0.72, 1.45, 24), new THREE.MeshStandardMaterial({ color: 0xbb6e55, roughness: 0.72 }))),
+      setupMesh(new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.62, 1.25, 24), new THREE.MeshStandardMaterial({ color: 0x99a15f, roughness: 0.7 }))),
+      setupMesh(new THREE.Mesh(new THREE.TorusGeometry(0.56, 0.16, 12, 28), new THREE.MeshStandardMaterial({ color: 0x474c4d, roughness: 0.74, metalness: 0.15 }))),
+      setupMesh(new THREE.Mesh(new THREE.TeapotGeometry(0.52, 8), new THREE.MeshStandardMaterial({ color: 0xc5cbd0, roughness: 0.54, metalness: 0.1 })))
+    ];
+    showcaseItems.forEach((item, index) => {
+      item.position.set((index % 3) * 1.85 - 1.85, Math.floor(index / 3) * 1.65, 0);
+      showcase.add(item);
+    });
+
+    const enemyTemplate = {
+      object: null,
+      animations: []
+    };
+
+    function makePrimitiveEnemy() {
+      const enemy = new THREE.Group();
+      const body = makeBox(0.7, 1.05, 0.42, materials.enemy, 0, 1.05, 0);
+      const head = setupMesh(new THREE.Mesh(new THREE.SphereGeometry(0.26, 14, 10), materials.skin));
+      head.position.set(0, 1.77, 0);
+      const helmet = setupMesh(new THREE.Mesh(new THREE.SphereGeometry(0.29, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2), materials.tankDark));
+      helmet.position.set(0, 1.82, 0);
+      const leftLeg = makeBox(0.2, 0.85, 0.22, materials.enemy, -0.2, 0.35, 0);
+      const rightLeg = makeBox(0.2, 0.85, 0.22, materials.enemy, 0.2, 0.35, 0);
+      const leftArm = makeBox(0.16, 0.85, 0.18, materials.enemy, -0.52, 1.08, 0);
+      const rightArm = makeBox(0.16, 0.85, 0.18, materials.enemy, 0.52, 1.08, 0);
+      leftArm.rotation.z = -0.3;
+      rightArm.rotation.z = 0.3;
+      enemy.add(body, head, helmet, leftLeg, rightLeg, leftArm, rightArm);
+      enemy.userData.walkParts = { leftLeg, rightLeg, leftArm, rightArm };
+      return enemy;
+    }
+
+    const enemies = [];
+    const obstacles = [];
+    const projectiles = [];
+    const explosions = [];
+    const mixers = [];
+
+    function makeCrater() {
+      const group = new THREE.Group();
+      const pit = setupMesh(new THREE.Mesh(new THREE.CylinderGeometry(1.25, 1.6, 0.18, 28), materials.crater));
+      pit.scale.z = 0.72;
+      pit.position.y = 0.06;
+      const rim = setupMesh(new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.16, 8, 28), materials.mud));
+      rim.rotation.x = Math.PI / 2;
+      rim.scale.y = 0.72;
+      rim.position.y = 0.16;
+      group.add(pit, rim);
+      group.userData.kind = 'crater';
+      group.userData.radius = 1.35;
+      return group;
+    }
+
+    function makeRockPile() {
+      const group = new THREE.Group();
+      const count = 5 + Math.floor(Math.random() * 3);
+      for (let i = 0; i < count; i++) {
+        const rock = setupMesh(new THREE.Mesh(new THREE.DodecahedronGeometry(0.32 + Math.random() * 0.34, 0), materials.rock));
+        rock.position.set((Math.random() - 0.5) * 1.5, 0.25 + Math.random() * 0.4, (Math.random() - 0.5) * 1.35);
+        rock.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+        group.add(rock);
+      }
+      group.userData.kind = 'rocks';
+      group.userData.radius = 1.25;
+      return group;
+    }
+
+    function makeBarricade() {
+      const group = new THREE.Group();
+      for (let i = 0; i < 3; i++) {
+        const log = makeCylinder(0.16, 0.16, 2.35, 10, new THREE.MeshStandardMaterial({ color: 0x7d5131, roughness: 0.92 }), 0, 0.42 + i * 0.28, 0);
+        log.rotation.z = Math.PI / 2;
+        log.rotation.y = i % 2 ? 0.24 : -0.24;
+        group.add(log);
+      }
+      group.userData.kind = 'barricade';
+      group.userData.radius = 1.35;
+      return group;
+    }
+
+    function makeEnemy() {
+      let enemy;
+      if (enemyTemplate.object) {
+        enemy = THREE.SkeletonUtils.clone(enemyTemplate.object);
+        enemy.scale.multiplyScalar(0.012);
+        enemy.rotation.y = Math.PI;
+        enemy.traverse((child) => {
+          if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+          }
+        });
+        if (enemyTemplate.animations.length) {
+          const mixer = new THREE.AnimationMixer(enemy);
+          mixer.clipAction(enemyTemplate.animations[0]).play();
+          enemy.userData.mixer = mixer;
+          mixers.push(mixer);
+        }
+      } else {
+        enemy = makePrimitiveEnemy();
+      }
+      enemy.userData.radius = 0.85;
+      enemy.userData.phase = Math.random() * Math.PI * 2;
+      return enemy;
+    }
+
+    function randomLane() {
+      return lanes[Math.floor(Math.random() * lanes.length)];
+    }
+
+    function spawnObstacle() {
+      const roll = Math.random();
+      const obstacle = roll < 0.45 ? makeCrater() : roll < 0.78 ? makeRockPile() : makeBarricade();
+      obstacle.position.set(randomLane(), 0, -95 - Math.random() * 28);
+      scene.add(obstacle);
+      obstacles.push(obstacle);
+    }
+
+    function spawnEnemy() {
+      const enemy = makeEnemy();
+      enemy.position.set(randomLane(), 0, -105 - Math.random() * 24);
+      scene.add(enemy);
+      enemies.push(enemy);
+    }
+
+    function makeExplosion(position) {
+      const group = new THREE.Group();
+      for (let i = 0; i < 8; i++) {
+        const spark = setupMesh(new THREE.Mesh(new THREE.SphereGeometry(0.1 + Math.random() * 0.12, 8, 6), new THREE.MeshStandardMaterial({
+          color: i % 2 ? 0xf4d36f : 0xf17b38,
+          emissive: 0x9f3c05,
+          emissiveIntensity: 0.8
+        })));
+        spark.position.copy(position);
+        spark.userData.velocity = new THREE.Vector3((Math.random() - 0.5) * 8, Math.random() * 5, (Math.random() - 0.5) * 8);
+        group.add(spark);
+      }
+      group.userData.life = 0.55;
+      scene.add(group);
+      explosions.push(group);
+    }
+
+    function shoot() {
+      if (!game.running || game.over) return;
+      const shell = makeCylinder(0.12, 0.12, 0.55, 12, materials.shell);
+      shell.rotation.x = Math.PI / 2;
+      shell.position.set(tankBase.position.x, 1.72, tankBase.position.z - 2.05);
+      shell.userData.velocity = new THREE.Vector3(0, 0, -42);
+      scene.add(shell);
+      projectiles.push(shell);
+    }
+
+    const game = {
+      running: false,
+      over: false,
+      lane: 1,
+      laneTarget: 0,
+      score: 0,
+      health: 100,
+      baseSpeed: 17,
+      speed: 17,
+      obstacleTimer: 0,
+      enemyTimer: 1.2,
+      invulnerable: 0
+    };
+
+    const keys = new Set();
+
+    function setLane(offset) {
+      if (!game.running || game.over) return;
+      game.lane = THREE.MathUtils.clamp(game.lane + offset, 0, lanes.length - 1);
+      game.laneTarget = lanes[game.lane];
+    }
+
+    function damage(amount) {
+      if (game.invulnerable > 0 || game.over) return;
+      game.health = Math.max(0, game.health - amount);
+      game.invulnerable = 0.85;
+      tankBase.rotation.z = amount > 18 ? 0.18 : -0.12;
+      if (game.health <= 0) {
+        game.over = true;
+        game.running = false;
+        showMessage('<span class="danger">Xe tank da bi pha huy.</span> Nhan Choi lai de tiep tuc.');
+      }
+      updateHud();
+    }
+
+    function resetGame() {
+      [...obstacles, ...enemies, ...projectiles].forEach((object) => scene.remove(object));
+      obstacles.length = 0;
+      enemies.length = 0;
+      projectiles.length = 0;
+      explosions.forEach((object) => scene.remove(object));
+      explosions.length = 0;
+      game.running = false;
+      game.over = false;
+      game.lane = 1;
+      game.laneTarget = 0;
+      game.score = 0;
+      game.health = 100;
+      game.speed = game.baseSpeed;
+      game.obstacleTimer = 0.3;
+      game.enemyTimer = 1.4;
+      game.invulnerable = 0;
+      tankBase.position.x = 0;
+      tankBase.rotation.set(0, 0, 0);
+      updateHud();
+      showMessage('Nhan <strong>Bat dau</strong> de vao tran. A/D doi lan, Space ban ke dich, tranh ho bom va dat da.');
+    }
+
+    function startGame() {
+      if (game.over) resetGame();
+      game.running = true;
+      hideMessage();
+    }
+
+    function pauseGame() {
+      game.running = false;
+      showMessage('Dang tam dung. Nhan <strong>Bat dau</strong> de chay tiep.');
+    }
+
+    function showMessage(html) {
+      const message = document.getElementById('message');
+      message.innerHTML = html;
+      message.classList.remove('hidden');
+    }
+
+    function hideMessage() {
+      document.getElementById('message').classList.add('hidden');
+    }
+
+    function updateHud() {
+      document.getElementById('score').textContent = Math.floor(game.score).toString();
+      document.getElementById('health').textContent = Math.floor(game.health).toString();
+      document.getElementById('speed').textContent = `${(game.speed / game.baseSpeed).toFixed(1)}x`;
+    }
+
+    function updateRoad(delta) {
+      const move = game.running ? game.speed * delta : 3 * delta;
+      for (const segment of roadSegments) {
+        segment.position.z += move;
+        if (segment.position.z > 35) segment.position.z -= roadLength * 5;
+      }
+      laneLines.children.forEach((dash) => {
+        dash.position.z += move;
+        if (dash.position.z > 28) dash.position.z -= 200;
+      });
+      scenery.children.forEach((object) => {
+        object.position.z += move * 0.72;
+        if (object.position.z > 32) {
+          object.position.z -= 220;
+          if (Math.abs(object.position.x) > 6) {
+            object.position.x = Math.sign(object.position.x || 1) * (9 + Math.random() * 16);
+          }
+        }
+      });
+      paddies.children.forEach((object) => {
+        object.position.z += move * 0.58;
+        if (object.position.z > 32) object.position.z -= 218;
+      });
+    }
+
+    function updateTank(delta, elapsed) {
+      tankBase.position.x = THREE.MathUtils.damp(tankBase.position.x, game.laneTarget, 9, delta);
+      const wobble = game.running ? Math.sin(elapsed * 16) * 0.025 : 0;
+      tank.position.y = wobble;
+      tank.rotation.z = THREE.MathUtils.damp(tank.rotation.z, (game.laneTarget - tankBase.position.x) * -0.035, 8, delta);
+      tankBase.rotation.z = THREE.MathUtils.damp(tankBase.rotation.z, 0, 6, delta);
+      barrelPivot.rotation.x = -0.04 + Math.sin(elapsed * 3) * 0.018;
+      for (const pivot of wheelPivots) {
+        pivot.rotation.x -= (game.running ? game.speed : 5) * delta * 2.35;
+      }
+    }
+
+    function updateSpawns(delta) {
+      if (!game.running) return;
+      game.obstacleTimer -= delta;
+      game.enemyTimer -= delta;
+      if (game.obstacleTimer <= 0) {
+        spawnObstacle();
+        game.obstacleTimer = Math.max(0.55, 1.35 - game.score / 2600) + Math.random() * 0.55;
+      }
+      if (game.enemyTimer <= 0) {
+        spawnEnemy();
+        game.enemyTimer = Math.max(1.1, 2.5 - game.score / 3400) + Math.random() * 1.15;
+      }
+    }
+
+    function updateHazards(delta, elapsed) {
+      const move = game.running ? game.speed * delta : 0;
+      for (let i = obstacles.length - 1; i >= 0; i--) {
+        const obstacle = obstacles[i];
+        obstacle.position.z += move;
+        obstacle.rotation.y += delta * 0.3;
+        const dz = Math.abs(obstacle.position.z - tankBase.position.z);
+        const dx = Math.abs(obstacle.position.x - tankBase.position.x);
+        if (dz < 1.75 && dx < obstacle.userData.radius + 0.72) {
+          damage(obstacle.userData.kind === 'crater' ? 28 : 18);
+          makeExplosion(new THREE.Vector3(obstacle.position.x, 0.7, obstacle.position.z));
+          scene.remove(obstacle);
+          obstacles.splice(i, 1);
+          continue;
+        }
+        if (obstacle.position.z > 20) {
+          scene.remove(obstacle);
+          obstacles.splice(i, 1);
+        }
+      }
+
+      for (let i = enemies.length - 1; i >= 0; i--) {
+        const enemy = enemies[i];
+        enemy.position.z += move * 0.94;
+        enemy.rotation.y = Math.PI + Math.sin(elapsed * 2 + enemy.userData.phase) * 0.08;
+        if (enemy.userData.walkParts) {
+          const phase = elapsed * 8 + enemy.userData.phase;
+          enemy.userData.walkParts.leftLeg.rotation.x = Math.sin(phase) * 0.55;
+          enemy.userData.walkParts.rightLeg.rotation.x = -Math.sin(phase) * 0.55;
+          enemy.userData.walkParts.leftArm.rotation.x = -Math.sin(phase) * 0.42;
+          enemy.userData.walkParts.rightArm.rotation.x = Math.sin(phase) * 0.42;
+        }
+        const dz = Math.abs(enemy.position.z - tankBase.position.z);
+        const dx = Math.abs(enemy.position.x - tankBase.position.x);
+        if (dz < 1.7 && dx < 1.35) {
+          damage(24);
+          makeExplosion(new THREE.Vector3(enemy.position.x, 1, enemy.position.z));
+          scene.remove(enemy);
+          enemies.splice(i, 1);
+          continue;
+        }
+        if (enemy.position.z > 22) {
+          scene.remove(enemy);
+          enemies.splice(i, 1);
+        }
+      }
+    }
+
+    function updateProjectiles(delta) {
+      for (let i = projectiles.length - 1; i >= 0; i--) {
+        const projectile = projectiles[i];
+        projectile.position.addScaledVector(projectile.userData.velocity, delta);
+        projectile.rotation.y += delta * 16;
+        let hit = false;
+        for (let j = enemies.length - 1; j >= 0; j--) {
+          const enemy = enemies[j];
+          if (projectile.position.distanceTo(enemy.position.clone().add(new THREE.Vector3(0, 1, 0))) < 1.2) {
+            game.score += 120;
+            makeExplosion(new THREE.Vector3(enemy.position.x, 1.2, enemy.position.z));
+            scene.remove(enemy);
+            enemies.splice(j, 1);
+            hit = true;
+            break;
+          }
+        }
+        if (!hit) {
+          for (let j = obstacles.length - 1; j >= 0; j--) {
+            const obstacle = obstacles[j];
+            if (obstacle.userData.kind !== 'crater' && projectile.position.distanceTo(obstacle.position.clone().add(new THREE.Vector3(0, 0.6, 0))) < 1.15) {
+              game.score += 45;
+              makeExplosion(new THREE.Vector3(obstacle.position.x, 0.8, obstacle.position.z));
+              scene.remove(obstacle);
+              obstacles.splice(j, 1);
+              hit = true;
+              break;
+            }
+          }
+        }
+        if (hit || projectile.position.z < -125) {
+          scene.remove(projectile);
+          projectiles.splice(i, 1);
+        }
+      }
+    }
+
+    function updateExplosions(delta) {
+      for (let i = explosions.length - 1; i >= 0; i--) {
+        const explosion = explosions[i];
+        explosion.userData.life -= delta;
+        explosion.children.forEach((spark) => {
+          spark.position.addScaledVector(spark.userData.velocity, delta);
+          spark.userData.velocity.y -= 8 * delta;
+          spark.scale.multiplyScalar(0.985);
+        });
+        if (explosion.userData.life <= 0) {
+          scene.remove(explosion);
+          explosions.splice(i, 1);
+        }
+      }
+    }
+
+    function updateCamera() {
+      const lookAt = new THREE.Vector3(tankBase.position.x * 0.32, 1.2, tankBase.position.z - 7);
+      camera.lookAt(lookAt);
+    }
+
+    function updateGame(delta, elapsed) {
+      if (game.running) {
+        game.score += delta * game.speed * 4.8;
+        game.speed = Math.min(31, game.baseSpeed + game.score / 410);
+        if (game.invulnerable > 0) {
+          game.invulnerable -= delta;
+          tank.visible = Math.floor(elapsed * 20) % 2 === 0 || game.invulnerable <= 0;
+        } else {
+          tank.visible = true;
+        }
+      }
+      updateRoad(delta);
+      updateTank(delta, elapsed);
+      updateSpawns(delta);
+      updateHazards(delta, elapsed);
+      updateProjectiles(delta);
+      updateExplosions(delta);
+      smokePuffs.forEach((puff, index) => {
+        puff.position.x += Math.sin(elapsed * 0.4 + index) * delta * 0.08;
+        puff.rotation.y += delta * 0.1;
+      });
+      showcase.rotation.y += delta * 0.35;
+      mixers.forEach((mixer) => mixer.update(delta));
+      updateCamera();
+      updateHud();
+    }
+
+    function applyAffineFromUi() {
+      const target = selectionBases[document.getElementById('targetObject').value];
+      if (!target) return;
+      const tx = Number(document.getElementById('tx').value);
+      const ty = Number(document.getElementById('ty').value);
+      const tz = Number(document.getElementById('tz').value);
+      const rx = THREE.MathUtils.degToRad(Number(document.getElementById('rx').value));
+      const ry = THREE.MathUtils.degToRad(Number(document.getElementById('ry').value));
+      const rz = THREE.MathUtils.degToRad(Number(document.getElementById('rz').value));
+      const scale = Number(document.getElementById('scale').value);
+      if (target === tankBase) {
+        tank.position.set(tx, ty, tz);
+        tank.rotation.set(rx, ry, rz);
+        tank.scale.setScalar(scale);
+      } else if (target === showcase) {
+        showcase.position.set(9.5 + tx, 1.25 + ty, -18 + tz);
+        showcase.rotation.set(rx, showcase.rotation.y, rz);
+        showcase.userData.extraY = ry;
+        showcase.scale.setScalar(scale);
+      } else {
+        roadGroup.position.set(tx, ty, tz);
+        roadGroup.rotation.set(rx, ry, rz);
+        roadGroup.scale.setScalar(scale);
+      }
+    }
+
+    function resetAffineUi() {
+      ['tx', 'ty', 'tz', 'rx', 'ry', 'rz'].forEach((id) => document.getElementById(id).value = 0);
+      document.getElementById('scale').value = 1;
+      tank.position.set(0, 0, 0);
+      tank.rotation.set(0, 0, 0);
+      tank.scale.setScalar(1);
+      showcase.position.set(9.5, 1.25, -18);
+      showcase.rotation.set(0, 0, 0);
+      showcase.scale.setScalar(1);
+      roadGroup.position.set(0, 0, 0);
+      roadGroup.rotation.set(0, 0, 0);
+      roadGroup.scale.setScalar(1);
+    }
+
+    function applyTextureToTarget(texture) {
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
+      if (THREE.SRGBColorSpace) {
+        texture.colorSpace = THREE.SRGBColorSpace;
+      } else {
+        texture.encoding = THREE.sRGBEncoding;
+      }
+      const target = document.getElementById('textureTarget').value;
+      const meshes = [];
+      if (target === 'tank') {
+        meshes.push(...tankParts);
+        texture.repeat.set(1.4, 1.4);
+      } else if (target === 'road') {
+        meshes.push(...roadSegments.filter((mesh) => mesh.material === materials.road));
+        texture.repeat.set(2, 8);
+      } else {
+        meshes.push(...showcaseItems);
+        texture.repeat.set(1, 1);
+      }
+      meshes.forEach((mesh) => {
+        if (!mesh.material || mesh.userData.points === undefined) return;
+        mesh.material = mesh.material.clone();
+        mesh.material.map = texture;
+        mesh.material.needsUpdate = true;
+        mesh.material.userData.baseOpacity = mesh.material.opacity;
+        mesh.material.userData.baseTransparent = mesh.material.transparent;
+        applyRenderModeToMesh(mesh, currentRenderMode);
+      });
+    }
+
+    function updateCameraFromUi() {
+      const camX = Number(document.getElementById('camX').value);
+      const camY = Number(document.getElementById('camY').value);
+      const camZ = Number(document.getElementById('camZ').value);
+      const near = Number(document.getElementById('near').value);
+      const far = Number(document.getElementById('far').value);
+      camera.position.set(camX, camY, camZ);
+      camera.near = near;
+      camera.far = far;
+      camera.updateProjectionMatrix();
+    }
+
+    function configureLoadedModel(root) {
+      root.traverse((child) => {
+        if (child.isMesh) {
+          child.castShadow = true;
+          child.receiveShadow = true;
+          if (child.material) {
+            const mats = Array.isArray(child.material) ? child.material : [child.material];
+            mats.forEach((material) => {
+              material.userData.baseOpacity = material.opacity;
+              material.userData.baseTransparent = material.transparent;
+            });
+          }
+        }
+      });
+      const box = new THREE.Box3().setFromObject(root);
+      const size = new THREE.Vector3();
+      box.getSize(size);
+      const maxAxis = Math.max(size.x, size.y, size.z) || 1;
+      root.scale.setScalar(1.85 / maxAxis);
+      const center = new THREE.Vector3();
+      box.getCenter(center);
+      root.position.sub(center.multiplyScalar(root.scale.x));
+    }
+
+    function onModelLoaded(root, animations) {
+      configureLoadedModel(root);
+      enemyTemplate.object = root;
+      enemyTemplate.animations = animations || [];
+      showMessage('<span class="ok">Da nap model ke dich.</span> Nhan Bat dau hoac tiep tuc choi de thay ke dich moi.');
+    }
+
+    function loadModelFromFile(file) {
+      const extension = file.name.split('.').pop().toLowerCase();
+      const reader = new FileReader();
+      if (extension === 'fbx') {
+        reader.onload = () => {
+          const loader = new THREE.FBXLoader();
+          const object = loader.parse(reader.result, '');
+          onModelLoaded(object, object.animations || []);
+        };
+        reader.readAsArrayBuffer(file);
+        return;
+      }
+      if (extension === 'glb' || extension === 'gltf') {
+        reader.onload = () => {
+          const loader = new THREE.GLTFLoader();
+          loader.parse(reader.result, '', (gltf) => onModelLoaded(gltf.scene, gltf.animations), (error) => {
+            showMessage(`<span class="danger">Khong doc duoc model:</span> ${error.message || error}`);
+          });
+        };
+        reader.readAsArrayBuffer(file);
+        return;
+      }
+      showMessage('<span class="danger">Dinh dang model chua ho tro.</span> Hay dung FBX, GLB hoac GLTF.');
+    }
+
+    document.getElementById('startBtn').addEventListener('click', startGame);
+    document.getElementById('pauseBtn').addEventListener('click', pauseGame);
+    document.getElementById('restartBtn').addEventListener('click', () => {
+      resetGame();
+      startGame();
+    });
+
+    document.querySelectorAll('#renderMode button').forEach((button) => {
+      button.addEventListener('click', () => applyRenderMode(button.dataset.mode));
+    });
+
+    ['camX', 'camY', 'camZ', 'near', 'far'].forEach((id) => {
+      document.getElementById(id).addEventListener('input', updateCameraFromUi);
+    });
+
+    ['targetObject', 'tx', 'ty', 'tz', 'rx', 'ry', 'rz', 'scale'].forEach((id) => {
+      document.getElementById(id).addEventListener('input', applyAffineFromUi);
+    });
+
+    document.getElementById('resetTransform').addEventListener('click', resetAffineUi);
+
+    document.getElementById('textureInput').addEventListener('change', (event) => {
+      const [file] = event.target.files;
+      if (!file) return;
+      const url = URL.createObjectURL(file);
+      new THREE.TextureLoader().load(url, (texture) => {
+        applyTextureToTarget(texture);
+        URL.revokeObjectURL(url);
+      });
+    });
+
+    document.getElementById('modelInput').addEventListener('change', (event) => {
+      const [file] = event.target.files;
+      if (file) loadModelFromFile(file);
+    });
+
+    document.getElementById('ambient').addEventListener('input', (event) => {
+      ambientLight.intensity = Number(event.target.value);
+    });
+    document.getElementById('sun').addEventListener('input', (event) => {
+      sun.intensity = Number(event.target.value);
+    });
+    document.getElementById('shadowToggle').addEventListener('change', (event) => {
+      renderer.shadowMap.enabled = event.target.checked;
+      scene.traverse((object) => {
+        if (object.isMesh) object.castShadow = event.target.checked;
+      });
+    });
+
+    window.addEventListener('keydown', (event) => {
+      if (event.repeat) return;
+      keys.add(event.code);
+      if (event.code === 'KeyA') setLane(-1);
+      if (event.code === 'KeyD') setLane(1);
+      if (event.code === 'Space') {
+        event.preventDefault();
+        shoot();
+      }
+      if (event.code === 'KeyR') resetAffineUi();
+      if (event.code === 'KeyJ') {
+        document.getElementById('tx').value = Number(document.getElementById('tx').value) - 0.25;
+        applyAffineFromUi();
+      }
+      if (event.code === 'KeyL') {
+        document.getElementById('tx').value = Number(document.getElementById('tx').value) + 0.25;
+        applyAffineFromUi();
+      }
+      if (event.code === 'KeyI') {
+        document.getElementById('tz').value = Number(document.getElementById('tz').value) - 0.25;
+        applyAffineFromUi();
+      }
+      if (event.code === 'KeyK') {
+        document.getElementById('tz').value = Number(document.getElementById('tz').value) + 0.25;
+        applyAffineFromUi();
+      }
+      if (event.code === 'KeyU') {
+        document.getElementById('scale').value = Math.max(0.35, Number(document.getElementById('scale').value) - 0.05);
+        applyAffineFromUi();
+      }
+      if (event.code === 'KeyO') {
+        document.getElementById('scale').value = Math.min(2.2, Number(document.getElementById('scale').value) + 0.05);
+        applyAffineFromUi();
+      }
+    });
+
+    window.addEventListener('keyup', (event) => {
+      keys.delete(event.code);
+    });
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const delta = Math.min(clock.getDelta(), 0.05);
+      const elapsed = clock.elapsedTime;
+      updateGame(delta, elapsed);
+      renderer.render(scene, camera);
+    }
+
+    resetGame();
+    updateCameraFromUi();
+    applyRenderMode('solid');
+    animate();
+  </script>
+</body>
+</html>
