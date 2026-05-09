@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -271,12 +272,14 @@
     }
   </style>
 </head>
+
 <body>
   <div class="hud">
     <div class="topbar">
       <section class="brand" aria-label="Ten game">
         <h1>Tank Runner 3D: Duong Truong Son</h1>
-        <p class="subtitle">A/D doi lan, Space ban. Game chay vo han voi xe tang, ho bom, dat da, ke dich va bo cong cu kiem tra yeu cau do an DHMT.</p>
+        <p class="subtitle">A/D doi lan, Space ban. Game chay vo han voi xe tang, ho bom, dat da, ke dich va bo cong cu
+          kiem tra yeu cau do an DHMT.</p>
       </section>
 
       <section class="stats" aria-label="Thong so game">
@@ -294,7 +297,8 @@
           <button id="pauseBtn" type="button">Tam dung</button>
           <button id="restartBtn" type="button">Choi lai</button>
         </div>
-        <p class="hint">Tank dung primitive geometry de nhom co the ve tay/chinh sua. Banh xe va banh xich chuyen dong lien tuc.</p>
+        <p class="hint">Tank dung primitive geometry de nhom co the ve tay/chinh sua. Banh xe va banh xich chuyen dong
+          lien tuc.</p>
       </details>
 
       <details open>
@@ -308,11 +312,16 @@
 
       <details>
         <summary>Camera phoi canh</summary>
-        <div class="row"><label for="camX">Camera X</label><input id="camX" type="range" min="-18" max="18" step="0.1" value="0"></div>
-        <div class="row"><label for="camY">Camera Y</label><input id="camY" type="range" min="3" max="18" step="0.1" value="7.2"></div>
-        <div class="row"><label for="camZ">Camera Z</label><input id="camZ" type="range" min="7" max="24" step="0.1" value="14"></div>
-        <div class="row"><label for="near">Near</label><input id="near" type="range" min="0.1" max="5" step="0.1" value="0.1"></div>
-        <div class="row"><label for="far">Far</label><input id="far" type="range" min="80" max="600" step="5" value="360"></div>
+        <div class="row"><label for="camX">Camera X</label><input id="camX" type="range" min="-18" max="18" step="0.1"
+            value="0"></div>
+        <div class="row"><label for="camY">Camera Y</label><input id="camY" type="range" min="3" max="18" step="0.1"
+            value="7.2"></div>
+        <div class="row"><label for="camZ">Camera Z</label><input id="camZ" type="range" min="7" max="24" step="0.1"
+            value="14"></div>
+        <div class="row"><label for="near">Near</label><input id="near" type="range" min="0.1" max="5" step="0.1"
+            value="0.1"></div>
+        <div class="row"><label for="far">Far</label><input id="far" type="range" min="80" max="600" step="5"
+            value="360"></div>
       </details>
 
       <details>
@@ -325,13 +334,20 @@
             <option value="road">Mat duong</option>
           </select>
         </div>
-        <div class="row"><label for="tx">Tinh tien X</label><input id="tx" type="range" min="-8" max="8" step="0.1" value="0"></div>
-        <div class="row"><label for="ty">Tinh tien Y</label><input id="ty" type="range" min="-1" max="5" step="0.1" value="0"></div>
-        <div class="row"><label for="tz">Tinh tien Z</label><input id="tz" type="range" min="-8" max="8" step="0.1" value="0"></div>
-        <div class="row"><label for="rx">Quay X</label><input id="rx" type="range" min="-180" max="180" step="1" value="0"></div>
-        <div class="row"><label for="ry">Quay Y</label><input id="ry" type="range" min="-180" max="180" step="1" value="0"></div>
-        <div class="row"><label for="rz">Quay Z</label><input id="rz" type="range" min="-180" max="180" step="1" value="0"></div>
-        <div class="row"><label for="scale">Scale</label><input id="scale" type="range" min="0.35" max="2.2" step="0.05" value="1"></div>
+        <div class="row"><label for="tx">Tinh tien X</label><input id="tx" type="range" min="-8" max="8" step="0.1"
+            value="0"></div>
+        <div class="row"><label for="ty">Tinh tien Y</label><input id="ty" type="range" min="-1" max="5" step="0.1"
+            value="0"></div>
+        <div class="row"><label for="tz">Tinh tien Z</label><input id="tz" type="range" min="-8" max="8" step="0.1"
+            value="0"></div>
+        <div class="row"><label for="rx">Quay X</label><input id="rx" type="range" min="-180" max="180" step="1"
+            value="0"></div>
+        <div class="row"><label for="ry">Quay Y</label><input id="ry" type="range" min="-180" max="180" step="1"
+            value="0"></div>
+        <div class="row"><label for="rz">Quay Z</label><input id="rz" type="range" min="-180" max="180" step="1"
+            value="0"></div>
+        <div class="row"><label for="scale">Scale</label><input id="scale" type="range" min="0.35" max="2.2" step="0.05"
+            value="1"></div>
         <div class="inline">
           <button id="resetTransform" type="button">Reset affine</button>
         </div>
@@ -347,15 +363,20 @@
             <option value="showcase">Khoi co ban</option>
           </select>
         </div>
-        <div class="row"><label for="textureInput">Anh bitmap</label><input id="textureInput" type="file" accept="image/*"></div>
-        <div class="row"><label for="modelInput">Mixamo FBX/GLB</label><input id="modelInput" type="file" accept=".fbx,.glb,.gltf,model/gltf-binary,model/gltf+json"></div>
-        <p class="hint">Nap model Mixamo vao day de thay the ke dich mau. Neu file co animation, game se phat animation bang AnimationMixer.</p>
+        <div class="row"><label for="textureInput">Anh bitmap</label><input id="textureInput" type="file"
+            accept="image/*"></div>
+        <div class="row"><label for="modelInput">Mixamo FBX/GLB</label><input id="modelInput" type="file"
+            accept=".fbx,.glb,.gltf,model/gltf-binary,model/gltf+json"></div>
+        <p class="hint">Nap model Mixamo vao day de thay the ke dich mau. Neu file co animation, game se phat animation
+          bang AnimationMixer.</p>
       </details>
 
       <details>
         <summary>Anh sang va bong do</summary>
-        <div class="row"><label for="ambient">Toan phan</label><input id="ambient" type="range" min="0" max="2" step="0.05" value="0.65"></div>
-        <div class="row"><label for="sun">Nguon sang</label><input id="sun" type="range" min="0" max="3" step="0.05" value="1.35"></div>
+        <div class="row"><label for="ambient">Toan phan</label><input id="ambient" type="range" min="0" max="2"
+            step="0.05" value="0.65"></div>
+        <div class="row"><label for="sun">Nguon sang</label><input id="sun" type="range" min="0" max="3" step="0.05"
+            value="1.35"></div>
         <div class="inline">
           <label class="inline-label"><input id="shadowToggle" type="checkbox" checked> Bong do</label>
         </div>
@@ -363,7 +384,7 @@
     </aside>
 
     <div class="center-message" id="message">
-      Nhan <strong>Bat dau</strong> de vao tran. A/D doi lan, Space ban ke dich, tranh ho bom va dat da.
+      Nhan <strong>Bat dau</strong> de vao tran. A/D doi lan, Space ban ke dich, tranh ho bom, bao cat, thung phi va may bay dich.
     </div>
   </div>
 
@@ -374,27 +395,92 @@
   <script src="vendor/three/examples/js/utils/SkeletonUtils.js"></script>
   <script src="vendor/three/examples/js/geometries/TeapotGeometry.js"></script>
 
+  <!-- Post-Processing & Extensions -->
+  <script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+  <script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+  <script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+  <script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+  <script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/FilmPass.js"></script>
+  <script src="https://unpkg.com/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+  <script src="https://unpkg.com/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+  <script src="https://unpkg.com/three@0.128.0/examples/js/shaders/VignetteShader.js"></script>
+  <script src="https://unpkg.com/three@0.128.0/examples/js/shaders/FilmShader.js"></script>
+  <script src="https://unpkg.com/three@0.128.0/examples/js/objects/Reflector.js"></script>
+
   <script>
     const lanes = [-4, 0, 4];
     const clock = new THREE.Clock();
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x9ab3b2);
-    scene.fog = new THREE.FogExp2(0x9ab3b2, 0.016);
+    scene.background = new THREE.Color(0x4a3d30);
+    scene.fog = new THREE.FogExp2(0x4a3d30, 0.014);
 
     const camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 0.1, 360);
     camera.position.set(0, 7.2, 14);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.outputEncoding = THREE.sRGBEncoding;
     document.body.appendChild(renderer.domElement);
 
-    const ambientLight = new THREE.AmbientLight(0xf4f7d2, 0.65);
+    let composer, customColorPass;
+    function initPostProcessing() {
+      if (!THREE.EffectComposer) return;
+      composer = new THREE.EffectComposer(renderer);
+
+      const renderPass = new THREE.RenderPass(scene, camera);
+      composer.addPass(renderPass);
+
+      const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.6, 0.4, 0.85);
+      composer.addPass(bloomPass);
+
+      const colorGradeShader = {
+        uniforms: { tDiffuse: { value: null } },
+        vertexShader: `
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          varying vec2 vUv;
+          uniform sampler2D tDiffuse;
+          void main() {
+            vec4 tex = texture2D(tDiffuse, vUv);
+            vec3 color = tex.rgb;
+            color = smoothstep(0.02, 0.98, color); // Contrast
+            float luma = dot(color, vec3(0.299, 0.587, 0.114));
+            vec3 warmTint = vec3(1.15, 1.05, 0.85);
+            vec3 greenTint = vec3(0.85, 1.15, 0.75);
+            color = mix(color, color * warmTint, 0.35);
+            color = mix(color, color * greenTint, luma * 0.4);
+            color = mix(vec3(luma), color, 0.8); // Desaturate
+            gl_FragColor = vec4(color, tex.a);
+          }
+        `
+      };
+      customColorPass = new THREE.ShaderPass(colorGradeShader);
+      composer.addPass(customColorPass);
+
+      const filmPass = new THREE.FilmPass(0.3, 0.0, 0, false);
+      composer.addPass(filmPass);
+
+      const vignettePass = new THREE.ShaderPass(THREE.VignetteShader);
+      vignettePass.uniforms.offset.value = 1.2;
+      vignettePass.uniforms.darkness.value = 1.0;
+      composer.addPass(vignettePass);
+    }
+
+    // Khởi tạo Post-Processing
+    setTimeout(initPostProcessing, 500);
+
+    const ambientLight = new THREE.AmbientLight(0xc9a87a, 0.7);
     scene.add(ambientLight);
 
-    const sun = new THREE.DirectionalLight(0xfff1ba, 1.35);
+    const sun = new THREE.DirectionalLight(0xffe0b0, 1.5);
     sun.position.set(-14, 24, 18);
     sun.castShadow = true;
     sun.shadow.mapSize.set(2048, 2048);
@@ -406,30 +492,98 @@
     sun.shadow.camera.bottom = -28;
     scene.add(sun);
 
-    const fillLight = new THREE.HemisphereLight(0xc9e7ff, 0x46553a, 0.55);
+    const fillLight = new THREE.HemisphereLight(0x9b7450, 0x3a2818, 0.55);
     scene.add(fillLight);
 
     const renderables = new Set();
     let currentRenderMode = 'solid';
 
     const materials = {
-      road: new THREE.MeshStandardMaterial({ color: 0x6f5a3a, roughness: 0.95 }),
-      mud: new THREE.MeshStandardMaterial({ color: 0x4b3924, roughness: 1 }),
-      grass: new THREE.MeshStandardMaterial({ color: 0x2e6b3b, roughness: 0.9 }),
-      jungle: new THREE.MeshStandardMaterial({ color: 0x184c31, roughness: 0.85 }),
-      tank: new THREE.MeshStandardMaterial({ color: 0x3d5c2a, roughness: 0.78, metalness: 0.18 }),
-      tankDark: new THREE.MeshStandardMaterial({ color: 0x1d2517, roughness: 0.84, metalness: 0.2 }),
-      tankLight: new THREE.MeshStandardMaterial({ color: 0x60763c, roughness: 0.78, metalness: 0.12 }),
-      metal: new THREE.MeshStandardMaterial({ color: 0x565c54, roughness: 0.56, metalness: 0.5 }),
+      road: new THREE.MeshStandardMaterial({ color: 0x3d2b1a, roughness: 0.98 }),
+      mud: new THREE.MeshStandardMaterial({ color: 0x2e1e0f, roughness: 1 }),
+      grass: new THREE.MeshStandardMaterial({ color: 0x1a3318, roughness: 0.95 }),
+      jungle: new THREE.MeshStandardMaterial({ color: 0x0f2a15, roughness: 0.88 }),
+      tank: new THREE.MeshStandardMaterial({ color: 0x2e4420, roughness: 0.82, metalness: 0.2 }),
+      tankDark: new THREE.MeshStandardMaterial({ color: 0x141a0e, roughness: 0.88, metalness: 0.22 }),
+      tankLight: new THREE.MeshStandardMaterial({ color: 0x4a5e2e, roughness: 0.8, metalness: 0.14 }),
+      metal: new THREE.MeshStandardMaterial({ color: 0x3e4240, roughness: 0.6, metalness: 0.55 }),
       shell: new THREE.MeshStandardMaterial({ color: 0xf7d36d, emissive: 0x6d3e00, emissiveIntensity: 0.35 }),
-      crater: new THREE.MeshStandardMaterial({ color: 0x10100d, roughness: 1 }),
-      rock: new THREE.MeshStandardMaterial({ color: 0x7f7566, roughness: 0.95 }),
-      enemy: new THREE.MeshStandardMaterial({ color: 0x5f7441, roughness: 0.8 }),
-      skin: new THREE.MeshStandardMaterial({ color: 0xb58561, roughness: 0.8 }),
-      red: new THREE.MeshStandardMaterial({ color: 0xac2f26, roughness: 0.7 }),
-      smoke: new THREE.MeshStandardMaterial({ color: 0x77776d, transparent: true, opacity: 0.42, depthWrite: false }),
-      water: new THREE.MeshStandardMaterial({ color: 0x557f80, roughness: 0.25, metalness: 0.05 })
+      crater: new THREE.MeshStandardMaterial({ color: 0x0a0805, roughness: 1 }),
+      rock: new THREE.MeshStandardMaterial({ color: 0x4a4035, roughness: 0.98 }),
+      enemy: new THREE.MeshStandardMaterial({ color: 0x4a5530, roughness: 0.85 }),
+      skin: new THREE.MeshStandardMaterial({ color: 0x8a6540, roughness: 0.85 }),
+      red: new THREE.MeshStandardMaterial({ color: 0x8c1f18, roughness: 0.75 }),
+      smoke: new THREE.MeshStandardMaterial({ color: 0x3a3530, transparent: true, opacity: 0.55, depthWrite: false }),
+      water: new THREE.MeshStandardMaterial({ color: 0x2a4040, roughness: 0.3, metalness: 0.08 }),
+      sandbag: new THREE.MeshStandardMaterial({ color: 0x6b5c3e, roughness: 0.98 }),
+      barrel: new THREE.MeshStandardMaterial({ color: 0x2a2a28, roughness: 0.7, metalness: 0.4 }),
+      barrelRust: new THREE.MeshStandardMaterial({ color: 0x5a2d1a, roughness: 0.9, metalness: 0.2 }),
+      fire: new THREE.MeshStandardMaterial({ color: 0xff6622, emissive: 0xff4400, emissiveIntensity: 1.2, transparent: true, opacity: 0.7, depthWrite: false }),
+      mountain: new THREE.MeshStandardMaterial({ color: 0x1a1510, roughness: 1 }),
+      aircraft: new THREE.MeshStandardMaterial({ color: 0x3a3a38, roughness: 0.6, metalness: 0.5 })
     };
+
+    // --- Procedural Noise cho shader ---
+    const glslNoise = `
+    // Simplex 2D noise
+    vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
+    float snoise(vec2 v){
+      const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+      vec2 i  = floor(v + dot(v, C.yy) );
+      vec2 x0 = v -   i + dot(i, C.xx);
+      vec2 i1;
+      i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+      vec4 x12 = x0.xyxy + C.xxzz;
+      x12.xy -= i1;
+      i = mod(i, 289.0);
+      vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 )) + i.x + vec3(0.0, i1.x, 1.0 ));
+      vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+      m = m*m ; m = m*m ;
+      vec3 x = 2.0 * fract(p * C.www) - 1.0;
+      vec3 h = abs(x) - 0.5;
+      vec3 ox = floor(x + 0.5);
+      vec3 a0 = x - ox;
+      m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+      vec3 g;
+      g.x  = a0.x  * x0.x  + h.x  * x0.y;
+      g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+      return 130.0 * dot(m, g);
+    }
+    `;
+
+    const injectMudShader = (shader) => {
+      shader.vertexShader = shader.vertexShader.replace(
+        '#include <common>',
+        `#include <common>\nvarying vec3 vWPos;`
+      ).replace(
+        '#include <worldpos_vertex>',
+        `#include <worldpos_vertex>\nvWPos = (modelMatrix * vec4(transformed, 1.0)).xyz;`
+      );
+
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <common>',
+        `#include <common>\nvarying vec3 vWPos;\n${glslNoise}`
+      ).replace(
+        '#include <roughnessmap_fragment>',
+        `#include <roughnessmap_fragment>
+        float n = snoise(vWPos.xz * 0.35);
+        float n2 = snoise(vWPos.xz * 1.5);
+        float mudNoise = n * 0.6 + n2 * 0.4;
+        
+        // Puddles and wet mud
+        if (mudNoise < -0.15) {
+          roughnessFactor = 0.05;
+          metalnessFactor = 0.6;
+        } else {
+          roughnessFactor = 0.8 - mudNoise * 0.3;
+          metalnessFactor = 0.1;
+        }
+        `
+      );
+    };
+
+    materials.road.onBeforeCompile = injectMudShader;
+    materials.mud.onBeforeCompile = injectMudShader;
 
     function setupMesh(mesh) {
       mesh.castShadow = true;
@@ -503,13 +657,13 @@
       roadGroup.add(segment);
       roadSegments.push(segment);
 
-      const leftVerge = setupMesh(new THREE.Mesh(new THREE.PlaneGeometry(12, roadLength), materials.grass));
+      const leftVerge = setupMesh(new THREE.Mesh(new THREE.PlaneGeometry(12, roadLength), materials.mud));
       leftVerge.rotation.x = -Math.PI / 2;
       leftVerge.position.set(-11.75, 0.01, segment.position.z);
       roadGroup.add(leftVerge);
 
       const rightVerge = leftVerge.clone();
-      rightVerge.material = materials.grass;
+      rightVerge.material = materials.mud;
       rightVerge.position.x = 11.75;
       rightVerge.userData.points = null;
       setupMesh(rightVerge);
@@ -521,7 +675,7 @@
     roadGroup.add(laneLines);
     for (let z = -170; z <= 24; z += 8) {
       for (const x of [-2, 2]) {
-        const dash = makeBox(0.08, 0.02, 3.6, new THREE.MeshStandardMaterial({ color: 0xc8b77a, roughness: 0.9 }), x, 0.035, z);
+        const dash = makeBox(0.08, 0.02, 3.6, new THREE.MeshStandardMaterial({ color: 0x5a4a32, roughness: 0.95 }), x, 0.035, z);
         dash.castShadow = false;
         laneLines.add(dash);
       }
@@ -530,34 +684,114 @@
     const scenery = new THREE.Group();
     scene.add(scenery);
 
-    function addTree(x, z, scale = 1) {
-      const trunk = makeCylinder(0.18 * scale, 0.22 * scale, 2.2 * scale, 8, new THREE.MeshStandardMaterial({ color: 0x6f4a2c, roughness: 0.9 }), x, 1.1 * scale, z);
-      const crown = setupMesh(new THREE.Mesh(new THREE.ConeGeometry(1.15 * scale, 2.4 * scale, 7), materials.jungle));
-      crown.position.set(x, 2.75 * scale, z);
-      scenery.add(trunk, crown);
+    // --- INSTANCED JUNGLE ---
+    const treeCount = 2000;
+    const trunkGeo = new THREE.CylinderGeometry(0.2, 0.25, 2.5, 8);
+    const trunkMat = new THREE.MeshStandardMaterial({ color: 0x2a1a0a, roughness: 0.95 });
+    const trunkInstanced = new THREE.InstancedMesh(trunkGeo, trunkMat, treeCount);
+    trunkInstanced.castShadow = true;
+    trunkInstanced.receiveShadow = true;
+
+    const crownGeo = new THREE.ConeGeometry(1.5, 4.0, 7);
+    const crownMat = materials.jungle.clone();
+
+    // Wind Sway Shader
+    const customUniforms = { uTime: { value: 0 } };
+    crownMat.onBeforeCompile = (shader) => {
+      shader.uniforms.uTime = customUniforms.uTime;
+      shader.vertexShader = shader.vertexShader.replace(
+        '#include <common>',
+        `#include <common>\nuniform float uTime;`
+      ).replace(
+        '#include <begin_vertex>',
+        `#include <begin_vertex>
+        float sway = sin(uTime * 1.2 + instanceMatrix[3][0] * 0.2 + instanceMatrix[3][2] * 0.2) * 0.1;
+        transformed.x += sway * pow(max(0.0, position.y), 1.5);
+        `
+      );
+    };
+
+    const crownInstanced = new THREE.InstancedMesh(crownGeo, crownMat, treeCount);
+    crownInstanced.castShadow = true;
+    crownInstanced.receiveShadow = true;
+
+    const dummy = new THREE.Object3D();
+    for (let i = 0; i < treeCount; i++) {
+      const side = Math.random() > 0.5 ? -1 : 1;
+      const x = side * (8 + Math.random() * 45); // Spread out on the sides
+      const z = 40 - Math.random() * 260; // 300 unit long stretch
+      const scale = 0.5 + Math.random() * 1.5;
+
+      dummy.position.set(x, 1.25 * scale, z);
+      dummy.scale.set(scale, scale, scale);
+      dummy.rotation.y = Math.random() * Math.PI * 2;
+      dummy.updateMatrix();
+      trunkInstanced.setMatrixAt(i, dummy.matrix);
+
+      dummy.position.set(x, 3.5 * scale, z);
+      dummy.updateMatrix();
+      crownInstanced.setMatrixAt(i, dummy.matrix);
     }
 
-    for (let i = 0; i < 64; i++) {
+    // Create two chunks of instanced meshes to tile them infinitely
+    const chunk1 = new THREE.Group();
+    chunk1.add(trunkInstanced, crownInstanced);
+    const chunk2 = chunk1.clone();
+    chunk2.position.z = -260; // Offset by the length of the spawn area
+
+    scenery.add(chunk1, chunk2);
+    const jungleChunks = [chunk1, chunk2];
+
+    // --- MOUNTAINS ---
+    const mountains = new THREE.Group();
+    scene.add(mountains);
+    for (let i = 0; i < 18; i++) {
+      const mw = 15 + Math.random() * 25;
+      const mh = 8 + Math.random() * 18;
+      const mGeo = new THREE.ConeGeometry(mw, mh, 5 + Math.floor(Math.random() * 3));
+      const mMat = materials.mountain.clone();
+      mMat.color.setHex([0x1a1510, 0x151008, 0x1e1812][i % 3]);
+      const mount = new THREE.Mesh(mGeo, mMat);
       const side = i % 2 === 0 ? -1 : 1;
-      const x = side * (9 + Math.random() * 16);
-      const z = 18 - Math.random() * 210;
-      addTree(x, z, 0.7 + Math.random() * 0.75);
+      mount.position.set(side * (30 + Math.random() * 40), mh * 0.4, -20 - i * 18);
+      mount.castShadow = false;
+      mountains.add(mount);
+    }
+
+    // --- FIRE COLUMNS (wartime burning scenery) ---
+    const fireColumns = [];
+    for (let i = 0; i < 8; i++) {
+      const fireGrp = new THREE.Group();
+      for (let j = 0; j < 4; j++) {
+        const flame = setupMesh(new THREE.Mesh(new THREE.SphereGeometry(0.4 + Math.random() * 0.5, 8, 6), materials.fire.clone()));
+        flame.position.set((Math.random() - 0.5) * 0.8, 1.5 + j * 0.7 + Math.random() * 0.5, 0);
+        flame.castShadow = false;
+        flame.receiveShadow = false;
+        fireGrp.add(flame);
+      }
+      const side = i % 2 === 0 ? -1 : 1;
+      fireGrp.position.set(side * (8 + Math.random() * 12), 0, -20 - i * 30);
+      scene.add(fireGrp);
+      fireColumns.push(fireGrp);
     }
 
     const paddies = new THREE.Group();
     scene.add(paddies);
-    for (let i = 0; i < 7; i++) {
-      const paddy = setupMesh(new THREE.Mesh(new THREE.PlaneGeometry(9 + Math.random() * 8, 18 + Math.random() * 16), materials.water));
+    for (let i = 0; i < 6; i++) {
+      const w = 10 + Math.random() * 8;
+      const h = 18 + Math.random() * 12;
+      const paddyGeo = new THREE.PlaneGeometry(w, h);
+      const paddy = setupMesh(new THREE.Mesh(paddyGeo, materials.mud));
       paddy.rotation.x = -Math.PI / 2;
-      paddy.position.set((i % 2 ? 1 : -1) * (17 + Math.random() * 8), 0.018, 6 - i * 31);
+      paddy.position.set((i % 2 ? 1 : -1) * (18 + Math.random() * 10), 0.02, 6 - i * 35);
       paddies.add(paddy);
     }
 
     const smokePuffs = [];
-    for (let i = 0; i < 12; i++) {
-      const puff = setupMesh(new THREE.Mesh(new THREE.SphereGeometry(0.7 + Math.random() * 0.8, 12, 8), materials.smoke));
-      puff.position.set((Math.random() - 0.5) * 28, 3 + Math.random() * 7, -45 - Math.random() * 130);
-      puff.scale.setScalar(1 + Math.random() * 1.4);
+    for (let i = 0; i < 20; i++) {
+      const puff = setupMesh(new THREE.Mesh(new THREE.SphereGeometry(0.9 + Math.random() * 1.2, 12, 8), materials.smoke));
+      puff.position.set((Math.random() - 0.5) * 35, 2 + Math.random() * 10, -30 - Math.random() * 160);
+      puff.scale.setScalar(1.2 + Math.random() * 2.0);
       puff.castShadow = false;
       puff.receiveShadow = false;
       scenery.add(puff);
@@ -611,6 +845,12 @@
       }
     }
 
+    // Store original positions for reset after death
+    tankParts.forEach((p) => {
+      p.userData._origPos = p.position.clone();
+      p.userData._origRot = p.rotation.clone();
+    });
+
     const selectionBases = {
       tank: tankBase,
       showcase: null,
@@ -642,18 +882,26 @@
 
     function makePrimitiveEnemy() {
       const enemy = new THREE.Group();
+      // Wartime soldier body with uniform
       const body = makeBox(0.7, 1.05, 0.42, materials.enemy, 0, 1.05, 0);
       const head = setupMesh(new THREE.Mesh(new THREE.SphereGeometry(0.26, 14, 10), materials.skin));
       head.position.set(0, 1.77, 0);
-      const helmet = setupMesh(new THREE.Mesh(new THREE.SphereGeometry(0.29, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2), materials.tankDark));
-      helmet.position.set(0, 1.82, 0);
-      const leftLeg = makeBox(0.2, 0.85, 0.22, materials.enemy, -0.2, 0.35, 0);
-      const rightLeg = makeBox(0.2, 0.85, 0.22, materials.enemy, 0.2, 0.35, 0);
+      // Pith helmet (non la / mu coi)
+      const helmet = setupMesh(new THREE.Mesh(new THREE.ConeGeometry(0.38, 0.25, 12), new THREE.MeshStandardMaterial({ color: 0x3a3520, roughness: 0.95 })));
+      helmet.position.set(0, 1.95, 0);
+      // Belt
+      const belt = makeBox(0.72, 0.1, 0.44, new THREE.MeshStandardMaterial({ color: 0x2a1a08, roughness: 0.9 }), 0, 0.9, 0);
+      // Boots
+      const leftLeg = makeBox(0.2, 0.85, 0.22, new THREE.MeshStandardMaterial({ color: 0x2a2a18, roughness: 0.9 }), -0.2, 0.35, 0);
+      const rightLeg = makeBox(0.2, 0.85, 0.22, new THREE.MeshStandardMaterial({ color: 0x2a2a18, roughness: 0.9 }), 0.2, 0.35, 0);
       const leftArm = makeBox(0.16, 0.85, 0.18, materials.enemy, -0.52, 1.08, 0);
       const rightArm = makeBox(0.16, 0.85, 0.18, materials.enemy, 0.52, 1.08, 0);
       leftArm.rotation.z = -0.3;
       rightArm.rotation.z = 0.3;
-      enemy.add(body, head, helmet, leftLeg, rightLeg, leftArm, rightArm);
+      // Rifle
+      const rifle = makeBox(0.06, 0.06, 1.4, materials.metal, 0.58, 1.15, -0.3);
+      rifle.rotation.x = -0.2;
+      enemy.add(body, head, helmet, belt, leftLeg, rightLeg, leftArm, rightArm, rifle);
       enemy.userData.walkParts = { leftLeg, rightLeg, leftArm, rightArm };
       return enemy;
     }
@@ -679,30 +927,33 @@
       return group;
     }
 
-    function makeRockPile() {
+    function makeSandbagWall() {
       const group = new THREE.Group();
-      const count = 5 + Math.floor(Math.random() * 3);
-      for (let i = 0; i < count; i++) {
-        const rock = setupMesh(new THREE.Mesh(new THREE.DodecahedronGeometry(0.32 + Math.random() * 0.34, 0), materials.rock));
-        rock.position.set((Math.random() - 0.5) * 1.5, 0.25 + Math.random() * 0.4, (Math.random() - 0.5) * 1.35);
-        rock.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
-        group.add(rock);
+      for (let row = 0; row < 2; row++) {
+        for (let col = -1; col <= 1; col++) {
+          const bag = setupMesh(new THREE.Mesh(
+            new THREE.BoxGeometry(0.7, 0.3, 0.4),
+            materials.sandbag
+          ));
+          bag.position.set(col * 0.65 + (row % 2) * 0.3, 0.2 + row * 0.28, 0);
+          bag.rotation.y = (Math.random() - 0.5) * 0.15;
+          group.add(bag);
+        }
       }
-      group.userData.kind = 'rocks';
-      group.userData.radius = 1.25;
+      group.userData.kind = 'sandbag';
+      group.userData.radius = 1.2;
       return group;
     }
 
-    function makeBarricade() {
+    function makeBarrel() {
       const group = new THREE.Group();
-      for (let i = 0; i < 3; i++) {
-        const log = makeCylinder(0.16, 0.16, 2.35, 10, new THREE.MeshStandardMaterial({ color: 0x7d5131, roughness: 0.92 }), 0, 0.42 + i * 0.28, 0);
-        log.rotation.z = Math.PI / 2;
-        log.rotation.y = i % 2 ? 0.24 : -0.24;
-        group.add(log);
-      }
-      group.userData.kind = 'barricade';
-      group.userData.radius = 1.35;
+      const barrel1 = makeCylinder(0.4, 0.4, 1.1, 12, materials.barrel, 0, 0.55, 0);
+      group.add(barrel1);
+      const barrel2 = makeCylinder(0.38, 0.38, 1.1, 12, materials.barrelRust, 0.7, 0.35, 0.2);
+      barrel2.rotation.z = 0.4;
+      group.add(barrel2);
+      group.userData.kind = 'barrel';
+      group.userData.radius = 1.3;
       return group;
     }
 
@@ -738,7 +989,7 @@
 
     function spawnObstacle() {
       const roll = Math.random();
-      const obstacle = roll < 0.45 ? makeCrater() : roll < 0.78 ? makeRockPile() : makeBarricade();
+      const obstacle = roll < 0.4 ? makeCrater() : roll < 0.7 ? makeSandbagWall() : makeBarrel();
       obstacle.position.set(randomLane(), 0, -95 - Math.random() * 28);
       scene.add(obstacle);
       obstacles.push(obstacle);
@@ -751,7 +1002,182 @@
       enemies.push(enemy);
     }
 
+    // --- ENEMY AIRCRAFT SYSTEM ---
+    const aircrafts = [];
+    const enemyBombs = [];
+    const enemyBullets = [];
+
+    function makeAircraft() {
+      const ac = new THREE.Group();
+      // Fuselage
+      const fuselage = makeCylinder(0.35, 0.25, 5.0, 10, materials.aircraft, 0, 0, 0);
+      fuselage.rotation.x = Math.PI / 2;
+      ac.add(fuselage);
+      // Nose cone
+      const nose = setupMesh(new THREE.Mesh(new THREE.ConeGeometry(0.25, 0.8, 8), materials.aircraft));
+      nose.rotation.x = -Math.PI / 2;
+      nose.position.set(0, 0, -2.8);
+      ac.add(nose);
+      // Wings
+      const wing = makeBox(7, 0.1, 1.4, materials.aircraft, 0, 0, 0.3);
+      ac.add(wing);
+      // Wing tips
+      const wingTipL = makeBox(0.6, 0.3, 0.4, materials.aircraft, -3.5, 0, 0.3);
+      ac.add(wingTipL);
+      const wingTipR = makeBox(0.6, 0.3, 0.4, materials.aircraft, 3.5, 0, 0.3);
+      ac.add(wingTipR);
+      // Tail
+      const tail = makeBox(2.8, 0.1, 0.8, materials.aircraft, 0, 0, 2.2);
+      ac.add(tail);
+      const vTail = makeBox(0.1, 1.2, 0.9, materials.aircraft, 0, 0.6, 2.2);
+      ac.add(vTail);
+      // Engine pods under wings
+      const engL = makeCylinder(0.18, 0.15, 0.8, 8, materials.metal, -2.0, -0.25, -0.2);
+      engL.rotation.x = Math.PI / 2;
+      ac.add(engL);
+      const engR = makeCylinder(0.18, 0.15, 0.8, 8, materials.metal, 2.0, -0.25, -0.2);
+      engR.rotation.x = Math.PI / 2;
+      ac.add(engR);
+      // Cockpit
+      const cockpit = setupMesh(new THREE.Mesh(new THREE.SphereGeometry(0.22, 8, 6), new THREE.MeshStandardMaterial({ color: 0x88aacc, roughness: 0.2, metalness: 0.6 })));
+      cockpit.position.set(0, 0.22, -1.5);
+      ac.add(cockpit);
+      // Smoke trail particles
+      for (let s = 0; s < 3; s++) {
+        const trail = setupMesh(new THREE.Mesh(new THREE.SphereGeometry(0.2 + s * 0.15, 6, 6), materials.smoke));
+        trail.position.set((Math.random() - 0.5) * 0.3, (Math.random() - 0.5) * 0.2, 2.8 + s * 0.6);
+        trail.castShadow = false;
+        ac.add(trail);
+      }
+      return ac;
+    }
+
+    function spawnAircraft() {
+      const ac = makeAircraft();
+      // Fly across the road at visible height
+      const startX = (Math.random() > 0.5 ? -1 : 1) * (6 + Math.random() * 12);
+      ac.position.set(startX, 12 + Math.random() * 6, -100 - Math.random() * 30);
+      ac.userData.speed = 20 + Math.random() * 12;
+      ac.userData.bombTimer = 0.6 + Math.random() * 0.8;
+      ac.userData.bulletTimer = 0.2 + Math.random() * 0.4;
+      ac.userData.strafeX = -startX * 0.05; // drift toward center
+      ac.rotation.y = startX > 0 ? -0.15 : 0.15;
+      // Slight banking
+      ac.rotation.z = startX > 0 ? 0.1 : -0.1;
+      scene.add(ac);
+      aircrafts.push(ac);
+    }
+
+    function dropBomb(aircraft) {
+      const bomb = setupMesh(new THREE.Mesh(new THREE.SphereGeometry(0.25, 8, 6), new THREE.MeshStandardMaterial({ color: 0x1a1a18, roughness: 0.7, metalness: 0.5 })));
+      bomb.position.copy(aircraft.position);
+      bomb.userData.velocity = new THREE.Vector3(aircraft.userData.strafeX * 0.1, -0.5, aircraft.userData.speed * 0.3);
+      bomb.userData.targetLane = randomLane();
+      scene.add(bomb);
+      enemyBombs.push(bomb);
+    }
+
+    function fireEnemyBullet(aircraft) {
+      const bullet = setupMesh(new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.6, 6), new THREE.MeshStandardMaterial({ color: 0xffaa22, emissive: 0xff6600, emissiveIntensity: 0.8 })));
+      bullet.rotation.x = Math.PI / 2;
+      bullet.position.set(aircraft.position.x + (Math.random() - 0.5) * 2, aircraft.position.y, aircraft.position.z);
+      const targetX = tankBase.position.x + (Math.random() - 0.5) * 3;
+      const dir = new THREE.Vector3(targetX - bullet.position.x, -bullet.position.y, tankBase.position.z - bullet.position.z).normalize();
+      bullet.userData.velocity = dir.multiplyScalar(55);
+      scene.add(bullet);
+      enemyBullets.push(bullet);
+    }
+
+    function updateAircrafts(delta) {
+      if (!game.running) return;
+      // Spawn aircraft periodically
+      game.aircraftTimer = (game.aircraftTimer || 5) - delta;
+      if (game.aircraftTimer <= 0) {
+        spawnAircraft();
+        game.aircraftTimer = 5 + Math.random() * 4;
+      }
+      // Update aircraft
+      for (let i = aircrafts.length - 1; i >= 0; i--) {
+        const ac = aircrafts[i];
+        ac.position.z += ac.userData.speed * delta;
+        ac.position.x += ac.userData.strafeX * delta + Math.sin(ac.position.z * 0.04) * delta * 1.5;
+        // Animate smoke trail
+        ac.children.forEach((child, ci) => {
+          if (ci > 8) { // trail particles
+            child.scale.setScalar(0.8 + Math.sin(clock.elapsedTime * 3 + ci) * 0.3);
+          }
+        });
+        // Randomly either drop bomb or fire bullet
+        ac.userData.bombTimer -= delta;
+        ac.userData.bulletTimer -= delta;
+        if (ac.userData.bombTimer <= 0) {
+          if (Math.random() < 0.6) {
+            dropBomb(ac);
+          } else {
+            fireEnemyBullet(ac);
+          }
+          ac.userData.bombTimer = 1.2 + Math.random() * 1.5;
+        }
+        if (ac.userData.bulletTimer <= 0) {
+          fireEnemyBullet(ac);
+          ac.userData.bulletTimer = 0.5 + Math.random() * 0.8;
+        }
+        if (ac.position.z > 50) {
+          scene.remove(ac);
+          aircrafts.splice(i, 1);
+        }
+      }
+      // Update bombs
+      for (let i = enemyBombs.length - 1; i >= 0; i--) {
+        const bomb = enemyBombs[i];
+        bomb.userData.velocity.y -= 15 * delta;
+        bomb.position.addScaledVector(bomb.userData.velocity, delta);
+        bomb.rotation.x += delta * 5;
+        if (bomb.position.y <= 0.1) {
+          // Create bomb crater on road
+          makeExplosion(new THREE.Vector3(bomb.position.x, 0.3, bomb.position.z));
+          const crater = makeCrater();
+          crater.position.set(bomb.userData.targetLane, 0, bomb.position.z);
+          scene.add(crater);
+          obstacles.push(crater);
+          scene.remove(bomb);
+          enemyBombs.splice(i, 1);
+          // Damage if close
+          const dx = Math.abs(bomb.position.x - tankBase.position.x);
+          const dz = Math.abs(bomb.position.z - tankBase.position.z);
+          if (dx < 2.5 && dz < 2.5) damage(20);
+          continue;
+        }
+        if (bomb.position.y < -5 || bomb.position.z > 30) {
+          scene.remove(bomb);
+          enemyBombs.splice(i, 1);
+        }
+      }
+      // Update enemy bullets
+      for (let i = enemyBullets.length - 1; i >= 0; i--) {
+        const bullet = enemyBullets[i];
+        bullet.position.addScaledVector(bullet.userData.velocity, delta);
+        // Check hit with tank
+        const dx = Math.abs(bullet.position.x - tankBase.position.x);
+        const dz = Math.abs(bullet.position.z - tankBase.position.z);
+        const dy = bullet.position.y;
+        if (dx < 1.5 && dz < 2.0 && dy < 2.5 && dy > 0) {
+          damage(12);
+          applyCameraShake(0.3);
+          scene.remove(bullet);
+          enemyBullets.splice(i, 1);
+          continue;
+        }
+        if (bullet.position.y < -1 || bullet.position.z > 30 || bullet.position.z < -130) {
+          scene.remove(bullet);
+          enemyBullets.splice(i, 1);
+        }
+      }
+    }
+
     function makeExplosion(position) {
+      applyCameraShake(0.6);
+      playExplosionSound();
       const group = new THREE.Group();
       for (let i = 0; i < 8; i++) {
         const spark = setupMesh(new THREE.Mesh(new THREE.SphereGeometry(0.1 + Math.random() * 0.12, 8, 6), new THREE.MeshStandardMaterial({
@@ -770,6 +1196,7 @@
 
     function shoot() {
       if (!game.running || game.over) return;
+      applyCameraShake(0.25);
       const shell = makeCylinder(0.12, 0.12, 0.55, 12, materials.shell);
       shell.rotation.x = Math.PI / 2;
       shell.position.set(tankBase.position.x, 1.72, tankBase.position.z - 2.05);
@@ -789,7 +1216,8 @@
       speed: 17,
       obstacleTimer: 0,
       enemyTimer: 1.2,
-      invulnerable: 0
+      invulnerable: 0,
+      aircraftTimer: 5
     };
 
     const keys = new Set();
@@ -805,19 +1233,169 @@
       game.health = Math.max(0, game.health - amount);
       game.invulnerable = 0.85;
       tankBase.rotation.z = amount > 18 ? 0.18 : -0.12;
+      applyCameraShake(amount * 0.05);
       if (game.health <= 0) {
         game.over = true;
         game.running = false;
-        showMessage('<span class="danger">Xe tank da bi pha huy.</span> Nhan Choi lai de tiep tuc.');
+        tankDeathExplosion();
+        showMessage('<span class="danger">Xe tank da bi pha huy!</span> Nhan Choi lai de tiep tuc.');
       }
       updateHud();
     }
 
+    // --- TANK DEATH EXPLOSION ---
+    function tankDeathExplosion() {
+      applyCameraShake(1.5);
+      playExplosionSound();
+      // Big fire explosion at tank position
+      for (let wave = 0; wave < 3; wave++) {
+        setTimeout(() => {
+          const group = new THREE.Group();
+          const colors = [0xff4400, 0xff8800, 0xffcc00, 0xff2200, 0x333333];
+          for (let i = 0; i < 14; i++) {
+            const size = 0.15 + Math.random() * 0.35;
+            const spark = setupMesh(new THREE.Mesh(
+              new THREE.SphereGeometry(size, 8, 6),
+              new THREE.MeshStandardMaterial({
+                color: colors[Math.floor(Math.random() * colors.length)],
+                emissive: 0xff4400,
+                emissiveIntensity: 1.2 - wave * 0.3
+              })
+            ));
+            spark.position.set(
+              tankBase.position.x + (Math.random() - 0.5) * 2,
+              1.0 + Math.random() * 1.5,
+              tankBase.position.z + (Math.random() - 0.5) * 2
+            );
+            spark.userData.velocity = new THREE.Vector3(
+              (Math.random() - 0.5) * 10,
+              3 + Math.random() * 8,
+              (Math.random() - 0.5) * 10
+            );
+            group.add(spark);
+          }
+          group.userData.life = 1.2;
+          scene.add(group);
+          explosions.push(group);
+          if (wave > 0) applyCameraShake(0.8);
+        }, wave * 200);
+      }
+      // Blow apart the tank visually
+      tank.children.forEach((part) => {
+        if (part.isMesh) {
+          part.userData.deathVel = new THREE.Vector3(
+            (Math.random() - 0.5) * 6,
+            2 + Math.random() * 5,
+            (Math.random() - 0.5) * 6
+          );
+          part.userData.deathSpin = new THREE.Vector3(
+            (Math.random() - 0.5) * 8,
+            (Math.random() - 0.5) * 8,
+            (Math.random() - 0.5) * 8
+          );
+        }
+      });
+      // Flash the screen (temporary light burst)
+      const flash = new THREE.PointLight(0xff6600, 8, 30);
+      flash.position.set(tankBase.position.x, 3, tankBase.position.z);
+      scene.add(flash);
+      setTimeout(() => scene.remove(flash), 300);
+    }
+
+    // --- PROCEDURAL AUDIO ---
+    let audioCtx, engineOsc, engineGain, masterGain;
+    const listener = new THREE.AudioListener();
+    camera.add(listener);
+
+    function initAudio() {
+      if (audioCtx) return;
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+      masterGain = audioCtx.createGain();
+      masterGain.gain.value = 0.4;
+      masterGain.connect(audioCtx.destination);
+
+      // Engine rumble
+      engineOsc = audioCtx.createOscillator();
+      engineOsc.type = 'sawtooth';
+      engineOsc.frequency.value = 40;
+
+      const lfo = audioCtx.createOscillator();
+      lfo.type = 'sine';
+      lfo.frequency.value = 15;
+      const lfoGain = audioCtx.createGain();
+      lfoGain.gain.value = 12;
+      lfo.connect(lfoGain);
+      lfoGain.connect(engineOsc.frequency);
+
+      engineGain = audioCtx.createGain();
+      engineGain.gain.value = 0.05;
+
+      engineOsc.connect(engineGain);
+      engineGain.connect(masterGain);
+
+      engineOsc.start();
+      lfo.start();
+
+      // Ambient Birds
+      setInterval(() => {
+        if (!game.running) return;
+        if (Math.random() < 0.25) playBirdChirp();
+      }, 2500);
+    }
+
+    function playBirdChirp() {
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(2000 + Math.random() * 1500, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(3500 + Math.random() * 1000, audioCtx.currentTime + 0.15);
+
+      gain.gain.setValueAtTime(0, audioCtx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.05, audioCtx.currentTime + 0.05);
+      gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.25);
+
+      osc.connect(gain);
+      gain.connect(masterGain);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.3);
+    }
+
+    function playExplosionSound() {
+      if (!audioCtx) return;
+      const bufferSize = audioCtx.sampleRate * 0.8;
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() - 0.5) * Math.exp(-i / (audioCtx.sampleRate * 0.15));
+      }
+
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 600;
+
+      const gain = audioCtx.createGain();
+      gain.gain.setValueAtTime(1.0, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.7);
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(masterGain);
+      noise.start();
+    }
+
     function resetGame() {
-      [...obstacles, ...enemies, ...projectiles].forEach((object) => scene.remove(object));
+      [...obstacles, ...enemies, ...projectiles, ...aircrafts, ...enemyBombs, ...enemyBullets].forEach((object) => scene.remove(object));
       obstacles.length = 0;
       enemies.length = 0;
       projectiles.length = 0;
+      aircrafts.length = 0;
+      enemyBombs.length = 0;
+      enemyBullets.length = 0;
       explosions.forEach((object) => scene.remove(object));
       explosions.length = 0;
       game.running = false;
@@ -829,17 +1407,35 @@
       game.speed = game.baseSpeed;
       game.obstacleTimer = 0.3;
       game.enemyTimer = 1.4;
+      game.aircraftTimer = 5;
       game.invulnerable = 0;
       tankBase.position.x = 0;
       tankBase.rotation.set(0, 0, 0);
+      // Reset tank parts after death explosion
+      tank.position.set(0, 0, 0);
+      tank.rotation.set(0, 0, 0);
+      tank.children.forEach((part) => {
+        if (part.isMesh) {
+          delete part.userData.deathVel;
+          delete part.userData.deathSpin;
+        }
+      });
+      // Rebuild tank geometry positions
+      tankParts.forEach((p) => {
+        if (p.userData._origPos) {
+          p.position.copy(p.userData._origPos);
+          p.rotation.copy(p.userData._origRot);
+        }
+      });
       updateHud();
-      showMessage('Nhan <strong>Bat dau</strong> de vao tran. A/D doi lan, Space ban ke dich, tranh ho bom va dat da.');
+      showMessage('Nhan <strong>Bat dau</strong> de vao tran. A/D doi lan, Space ban ke dich, tranh ho bom, bao cat va thung phi.');
     }
 
     function startGame() {
       if (game.over) resetGame();
       game.running = true;
       hideMessage();
+      initAudio();
     }
 
     function pauseGame() {
@@ -863,17 +1459,39 @@
       document.getElementById('speed').textContent = `${(game.speed / game.baseSpeed).toFixed(1)}x`;
     }
 
+    // --- ROAD CURVATURE (pseudo-3D depth effect) ---
+    const roadCurveAmount = 0.012;
+    let roadCurveOffset = 0;
+
     function updateRoad(delta) {
       const move = game.running ? game.speed * delta : 3 * delta;
-      for (const segment of roadSegments) {
+      // Animate road curvature
+      roadCurveOffset += delta * 0.3;
+      const curveShift = Math.sin(roadCurveOffset) * 2.5;
+      for (let si = 0; si < roadSegments.length; si++) {
+        const segment = roadSegments[si];
         segment.position.z += move;
         if (segment.position.z > 35) segment.position.z -= roadLength * 5;
+        // Apply curvature: bend road segments based on distance
+        const distFromCam = segment.position.z - camera.position.z;
+        const curveFactor = Math.pow(Math.max(0, -distFromCam) * roadCurveAmount, 1.6);
+        if (segment.material === materials.road) {
+          segment.position.x = curveShift * curveFactor * 0.015;
+          // Slight Y displacement for depth feel
+          segment.position.y = -Math.abs(distFromCam) * 0.002;
+        }
       }
       laneLines.children.forEach((dash) => {
         dash.position.z += move;
         if (dash.position.z > 28) dash.position.z -= 200;
       });
-      scenery.children.forEach((object) => {
+      jungleChunks.forEach((chunk) => {
+        chunk.position.z += move * 0.72;
+        if (chunk.position.z > 260) {
+          chunk.position.z -= 520;
+        }
+      });
+      smokePuffs.forEach((object) => {
         object.position.z += move * 0.72;
         if (object.position.z > 32) {
           object.position.z -= 220;
@@ -886,9 +1504,26 @@
         object.position.z += move * 0.58;
         if (object.position.z > 32) object.position.z -= 218;
       });
+      // Move fire columns
+      fireColumns.forEach((fc) => {
+        fc.position.z += move * 0.6;
+        if (fc.position.z > 30) fc.position.z -= 260;
+      });
     }
 
     function updateTank(delta, elapsed) {
+      // Tank death animation - parts fly apart
+      if (game.over) {
+        tank.children.forEach((part) => {
+          if (part.isMesh && part.userData.deathVel) {
+            part.position.addScaledVector(part.userData.deathVel, delta);
+            part.userData.deathVel.y -= 9.8 * delta;
+            part.rotation.x += part.userData.deathSpin.x * delta;
+            part.rotation.z += part.userData.deathSpin.z * delta;
+          }
+        });
+        return;
+      }
       tankBase.position.x = THREE.MathUtils.damp(tankBase.position.x, game.laneTarget, 9, delta);
       const wobble = game.running ? Math.sin(elapsed * 16) * 0.025 : 0;
       tank.position.y = wobble;
@@ -897,6 +1532,18 @@
       barrelPivot.rotation.x = -0.04 + Math.sin(elapsed * 3) * 0.018;
       for (const pivot of wheelPivots) {
         pivot.rotation.x -= (game.running ? game.speed : 5) * delta * 2.35;
+      }
+
+      // Dust Particles
+      if (game.running && Math.random() < 0.45) {
+        const dustGrp = new THREE.Group();
+        const dust = setupMesh(new THREE.Mesh(new THREE.SphereGeometry(0.25 + Math.random() * 0.2, 6, 6), materials.mud));
+        dust.position.set(tankBase.position.x + (Math.random() > 0.5 ? 1.3 : -1.3), 0.2, tankBase.position.z + 1.6);
+        dust.userData.velocity = new THREE.Vector3((Math.random() - 0.5) * 1.5, 1.5 + Math.random() * 2, 6 + Math.random() * 3);
+        dustGrp.add(dust);
+        dustGrp.userData.life = 0.65;
+        scene.add(dustGrp);
+        explosions.push(dustGrp);
       }
     }
 
@@ -1030,6 +1677,15 @@
         } else {
           tank.visible = true;
         }
+
+        // Update audio engine
+        if (audioCtx) {
+          engineOsc.frequency.setTargetAtTime(40 + game.speed * 1.5, audioCtx.currentTime, 0.1);
+          engineGain.gain.setTargetAtTime(0.35, audioCtx.currentTime, 0.1);
+        }
+      } else if (audioCtx) {
+        engineOsc.frequency.setTargetAtTime(30, audioCtx.currentTime, 0.1);
+        engineGain.gain.setTargetAtTime(0.05, audioCtx.currentTime, 0.1);
       }
       updateRoad(delta);
       updateTank(delta, elapsed);
@@ -1037,9 +1693,22 @@
       updateHazards(delta, elapsed);
       updateProjectiles(delta);
       updateExplosions(delta);
+      updateAircrafts(delta);
+      customUniforms.uTime.value = elapsed;
       smokePuffs.forEach((puff, index) => {
-        puff.position.x += Math.sin(elapsed * 0.4 + index) * delta * 0.08;
-        puff.rotation.y += delta * 0.1;
+        puff.position.x += Math.sin(elapsed * 0.4 + index) * delta * 0.12;
+        puff.position.y += Math.sin(elapsed * 0.3 + index * 0.7) * delta * 0.04;
+        puff.rotation.y += delta * 0.15;
+      });
+      // Animate fire columns
+      fireColumns.forEach((fc, fi) => {
+        fc.children.forEach((flame, fj) => {
+          flame.scale.setScalar(0.8 + Math.sin(elapsed * 5 + fi + fj * 2) * 0.4);
+          flame.position.y = 1.5 + fj * 0.7 + Math.sin(elapsed * 8 + fj) * 0.3;
+          if (flame.material && flame.material.opacity !== undefined) {
+            flame.material.opacity = 0.5 + Math.sin(elapsed * 6 + fj) * 0.3;
+          }
+        });
       });
       showcase.rotation.y += delta * 0.35;
       mixers.forEach((mixer) => mixer.update(delta));
@@ -1279,14 +1948,32 @@
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
+      if (composer) composer.setSize(window.innerWidth, window.innerHeight);
     });
+
+    let cameraShake = 0;
+    function applyCameraShake(amount) {
+      cameraShake = Math.min(cameraShake + amount, 1.5);
+    }
 
     function animate() {
       requestAnimationFrame(animate);
       const delta = Math.min(clock.getDelta(), 0.05);
       const elapsed = clock.elapsedTime;
       updateGame(delta, elapsed);
-      renderer.render(scene, camera);
+
+      // Camera Shake
+      if (cameraShake > 0) {
+        camera.position.x += (Math.random() - 0.5) * cameraShake;
+        camera.position.y += (Math.random() - 0.5) * cameraShake;
+        cameraShake *= 0.9;
+      }
+
+      if (composer) {
+        composer.render();
+      } else {
+        renderer.render(scene, camera);
+      }
     }
 
     resetGame();
@@ -1295,4 +1982,5 @@
     animate();
   </script>
 </body>
+
 </html>
