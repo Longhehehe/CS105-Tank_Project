@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Phep bien doi affine 3D - Tinh tien, quay, ti le</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f2efe9;
+      --panel: #ffffff;
+      --text: #1f1f1f;
+      --muted: #4a4a4a;
+      --x: #e15241;
+      --y: #2a8f5c;
+      --z: #3b6ea8;
+      --accent: #c9a227;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      min-height: 100%;
+      font-family: "IBM Plex Sans", "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    .wrap {
+      padding: 26px;
+      display: grid;
+      place-items: center;
+    }
+
+    .card {
+      width: min(980px, 100%);
+      background: var(--panel);
+      border-radius: 18px;
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.12);
+      padding: 24px;
+      display: grid;
+      gap: 20px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(22px, 2.8vw, 32px);
+      letter-spacing: 0.2px;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+
+    figure {
+      margin: 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    figcaption {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .canvas-wrap {
+      background: linear-gradient(135deg, rgba(225, 210, 180, 0.28), rgba(245, 240, 230, 0.9));
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    canvas {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 10px;
+      background: #fbfbf9;
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+    }
+
+    .legend {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 6px;
+    }
+
+    .x { background: var(--x); }
+    .y { background: var(--y); }
+    .z { background: var(--z); }
+    .tank { background: var(--accent); }
+
+    .note {
+      font-size: 13px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div>
+        <h1>4.2. Phep bien doi affine 3D</h1>
+        <p>Minh hoa 3 phep bien doi (tinh tien, quay, ti le) ap dung len xe tank trong khong gian 3D. Hinh ve su dung texture
+          that trong du an (mat duong va hoa tiet xe tank).</p>
+      </div>
+
+      <div class="grid">
+        <figure>
+          <div class="canvas-wrap">
+            <canvas id="translateCanvas" width="420" height="300" aria-label="Hinh tinh tien"></canvas>
+          </div>
+          <figcaption>Hinh 4.2.1. Mo ta phep tinh tien trong du an.</figcaption>
+        </figure>
+
+        <figure>
+          <div class="canvas-wrap">
+            <canvas id="rotateCanvas" width="420" height="300" aria-label="Hinh quay"></canvas>
+          </div>
+          <figcaption>Hinh 4.2.2. Mo ta phep quay trong du an.</figcaption>
+        </figure>
+
+        <figure>
+          <div class="canvas-wrap">
+            <canvas id="scaleCanvas" width="420" height="300" aria-label="Hinh ti le"></canvas>
+          </div>
+          <figcaption>Hinh 4.2.3. Mo ta phep ti le trong du an.</figcaption>
+        </figure>
+      </div>
+
+      <div class="legend">
+        <span><i class="dot x"></i>Truc X</span>
+        <span><i class="dot y"></i>Truc Y</span>
+        <span><i class="dot z"></i>Truc Z</span>
+        <span><i class="dot tank"></i>Tank</span>
+      </div>
+
+      <div class="note">Goi y: Mo file nay bang trinh duyet va chup lai 3 hinh de dua vao bao cao.</div>
+    </div>
+  </div>
+
+  <script>
+    const style = getComputedStyle(document.documentElement);
+    const colors = {
+      x: style.getPropertyValue("--x").trim(),
+      y: style.getPropertyValue("--y").trim(),
+      z: style.getPropertyValue("--z").trim(),
+      tank: style.getPropertyValue("--accent").trim()
+    };
+
+    function project(point) {
+      // Simple isometric projection
+      const isoX = point.x - point.z;
+      const isoY = point.y + (point.x + point.z) * 0.5;
+      return { x: isoX, y: isoY };
+    }
+
+    let groundPattern = null;
+    let tankPattern = null;
+
+    function loadImage(src) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = src;
+      });
+    }
+
+    function drawAxes(ctx, origin, scale) {
+      const axes = {
+        x: { x: scale, y: 0, z: 0 },
+        y: { x: 0, y: scale, z: 0 },
+        z: { x: 0, y: 0, z: scale }
+      };
+
+      const originProj = project({ x: 0, y: 0, z: 0 });
+      const base = { x: origin.x + originProj.x, y: origin.y - originProj.y };
+
+      drawArrow(ctx, base, project(axes.x), origin, colors.x, "X");
+      drawArrow(ctx, base, project(axes.y), origin, colors.y, "Y");
+      drawArrow(ctx, base, project(axes.z), origin, colors.z, "Z");
+    }
+
+    function drawArrow(ctx, base, vec, origin, color, label) {
+      const end = { x: origin.x + vec.x, y: origin.y - vec.y };
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(base.x, base.y);
+      ctx.lineTo(end.x, end.y);
+      ctx.stroke();
+
+      const angle = Math.atan2(end.y - base.y, end.x - base.x);
+      const head = 10;
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(end.x, end.y);
+      ctx.lineTo(end.x - head * Math.cos(angle - Math.PI / 6), end.y - head * Math.sin(angle - Math.PI / 6));
+      ctx.lineTo(end.x - head * Math.cos(angle + Math.PI / 6), end.y - head * Math.sin(angle + Math.PI / 6));
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = "#1f1f1f";
+      ctx.font = "600 14px IBM Plex Sans, Segoe UI, Arial, sans-serif";
+      ctx.fillText(label, end.x + 6, end.y + 5);
+    }
+
+    function drawTank(ctx, origin, position, rotation, scale) {
+      const p = project(position);
+      const center = { x: origin.x + p.x, y: origin.y - p.y };
+
+      ctx.save();
+      ctx.translate(center.x, center.y);
+      ctx.rotate(rotation);
+      ctx.scale(scale, scale);
+
+      ctx.fillStyle = tankPattern || colors.tank;
+      ctx.strokeStyle = "rgba(30, 30, 30, 0.5)";
+      ctx.lineWidth = 2;
+
+      ctx.beginPath();
+      ctx.roundRect(-28, -12, 56, 24, 6);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = "rgba(50, 50, 50, 0.8)";
+      ctx.beginPath();
+      ctx.roundRect(-12, -22, 24, 12, 4);
+      ctx.fill();
+
+      ctx.strokeStyle = "rgba(40, 40, 40, 0.8)";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(12, -16);
+      ctx.lineTo(36, -20);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function drawGround(ctx, origin) {
+      if (groundPattern) {
+        ctx.save();
+        ctx.translate(origin.x - 220, origin.y - 140);
+        ctx.fillStyle = groundPattern;
+        ctx.globalAlpha = 0.7;
+        ctx.fillRect(-120, -120, 480, 300);
+        ctx.restore();
+      }
+
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.08)";
+      ctx.lineWidth = 1;
+      const size = 140;
+      const step = 35;
+      for (let i = -size; i <= size; i += step) {
+        const a = project({ x: i, y: 0, z: -size });
+        const b = project({ x: i, y: 0, z: size });
+        ctx.beginPath();
+        ctx.moveTo(origin.x + a.x, origin.y - a.y);
+        ctx.lineTo(origin.x + b.x, origin.y - b.y);
+        ctx.stroke();
+
+        const c = project({ x: -size, y: 0, z: i });
+        const d = project({ x: size, y: 0, z: i });
+        ctx.beginPath();
+        ctx.moveTo(origin.x + c.x, origin.y - c.y);
+        ctx.lineTo(origin.x + d.x, origin.y - d.y);
+        ctx.stroke();
+      }
+    }
+
+    function renderTranslate() {
+      const canvas = document.getElementById("translateCanvas");
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const origin = { x: canvas.width * 0.5, y: canvas.height * 0.7 };
+      drawGround(ctx, origin);
+      drawAxes(ctx, origin, 110);
+
+      drawTank(ctx, origin, { x: -50, y: 0, z: -20 }, 0, 1);
+      drawTank(ctx, origin, { x: 60, y: 0, z: 40 }, 0, 1);
+
+      const from = project({ x: -50, y: 0, z: -20 });
+      const to = project({ x: 60, y: 0, z: 40 });
+      const fromScreen = { x: origin.x + from.x, y: origin.y - from.y };
+      const toScreen = { x: origin.x + to.x, y: origin.y - to.y };
+
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.5)";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 6]);
+      ctx.beginPath();
+      ctx.moveTo(fromScreen.x, fromScreen.y);
+      ctx.lineTo(toScreen.x, toScreen.y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = "#1f1f1f";
+      ctx.font = "600 12px IBM Plex Sans, Segoe UI, Arial, sans-serif";
+      ctx.fillText("Tinh tien", toScreen.x + 8, toScreen.y - 8);
+    }
+
+    function renderRotate() {
+      const canvas = document.getElementById("rotateCanvas");
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const origin = { x: canvas.width * 0.5, y: canvas.height * 0.72 };
+      drawGround(ctx, origin);
+      drawAxes(ctx, origin, 110);
+
+      drawTank(ctx, origin, { x: 0, y: 0, z: 0 }, 0.0, 1);
+      drawTank(ctx, origin, { x: 0, y: 0, z: 0 }, Math.PI / 3, 1);
+
+      const center = project({ x: 0, y: 0, z: 0 });
+      const centerScreen = { x: origin.x + center.x, y: origin.y - center.y };
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.4)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(centerScreen.x, centerScreen.y, 46, -Math.PI / 6, Math.PI / 3);
+      ctx.stroke();
+
+      ctx.fillStyle = "#1f1f1f";
+      ctx.font = "600 12px IBM Plex Sans, Segoe UI, Arial, sans-serif";
+      ctx.fillText("Quay", centerScreen.x + 48, centerScreen.y - 10);
+    }
+
+    function renderScale() {
+      const canvas = document.getElementById("scaleCanvas");
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const origin = { x: canvas.width * 0.5, y: canvas.height * 0.72 };
+      drawGround(ctx, origin);
+      drawAxes(ctx, origin, 110);
+
+      drawTank(ctx, origin, { x: -50, y: 0, z: 10 }, 0, 0.7);
+      drawTank(ctx, origin, { x: 50, y: 0, z: -20 }, 0, 1.2);
+
+      const small = project({ x: -50, y: 0, z: 10 });
+      const large = project({ x: 50, y: 0, z: -20 });
+      const smallScreen = { x: origin.x + small.x, y: origin.y - small.y };
+      const largeScreen = { x: origin.x + large.x, y: origin.y - large.y };
+
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.4)";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([4, 6]);
+      ctx.beginPath();
+      ctx.moveTo(smallScreen.x, smallScreen.y);
+      ctx.lineTo(largeScreen.x, largeScreen.y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = "#1f1f1f";
+      ctx.font = "600 12px IBM Plex Sans, Segoe UI, Arial, sans-serif";
+      ctx.fillText("Ti le", largeScreen.x + 8, largeScreen.y - 6);
+    }
+
+    Promise.all([
+      loadImage("../assets/textures/Ground037/Ground037_1K-JPG_Color.jpg"),
+      loadImage("../assets/textures/tank_camo.svg")
+    ]).then(([groundImg, tankImg]) => {
+      const groundCanvas = document.createElement("canvas");
+      groundCanvas.width = 256;
+      groundCanvas.height = 256;
+      const gctx = groundCanvas.getContext("2d");
+      gctx.drawImage(groundImg, 0, 0, groundCanvas.width, groundCanvas.height);
+      groundPattern = gctx.createPattern(groundCanvas, "repeat");
+
+      const tankCanvas = document.createElement("canvas");
+      tankCanvas.width = 128;
+      tankCanvas.height = 128;
+      const tctx = tankCanvas.getContext("2d");
+      tctx.fillStyle = "#b5a66a";
+      tctx.fillRect(0, 0, tankCanvas.width, tankCanvas.height);
+      tctx.globalAlpha = 0.9;
+      tctx.drawImage(tankImg, 0, 0, tankCanvas.width, tankCanvas.height);
+      tankPattern = tctx.createPattern(tankCanvas, "repeat");
+
+      renderTranslate();
+      renderRotate();
+      renderScale();
+    }).catch(() => {
+      renderTranslate();
+      renderRotate();
+      renderScale();
+    });
+  </script>
+</body>
+</html>

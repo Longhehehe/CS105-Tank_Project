@@ -330,7 +330,6 @@
           <label for="targetObject">Doi tuong</label>
           <select id="targetObject">
             <option value="tank">Xe tank</option>
-            <option value="showcase">Cum khoi co ban</option>
             <option value="road">Mat duong</option>
           </select>
         </div>
@@ -360,7 +359,6 @@
           <select id="textureTarget">
             <option value="tank">Than xe</option>
             <option value="road">Mat duong</option>
-            <option value="showcase">Khoi co ban</option>
           </select>
         </div>
         <div class="row"><label for="textureInput">Anh bitmap</label><input id="textureInput" type="file"
@@ -374,9 +372,9 @@
       <details>
         <summary>Anh sang va bong do</summary>
         <div class="row"><label for="ambient">Toan phan</label><input id="ambient" type="range" min="0" max="2"
-            step="0.05" value="0.65"></div>
+            step="0.05" value="0.82"></div>
         <div class="row"><label for="sun">Nguon sang</label><input id="sun" type="range" min="0" max="3" step="0.05"
-            value="1.35"></div>
+            value="1.45"></div>
         <div class="inline">
           <label class="inline-label"><input id="shadowToggle" type="checkbox" checked> Bong do</label>
         </div>
@@ -411,8 +409,8 @@
     const lanes = [-4, 0, 4];
     const clock = new THREE.Clock();
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x4a3d30);
-    scene.fog = new THREE.FogExp2(0x4a3d30, 0.014);
+    scene.background = new THREE.Color(0x5a3f2b);
+    scene.fog = new THREE.FogExp2(0x5a3f2b, 0.014);
 
     const camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 0.1, 360);
     camera.position.set(0, 7.2, 14);
@@ -469,18 +467,18 @@
       composer.addPass(filmPass);
 
       const vignettePass = new THREE.ShaderPass(THREE.VignetteShader);
-      vignettePass.uniforms.offset.value = 1.2;
-      vignettePass.uniforms.darkness.value = 1.0;
+      vignettePass.uniforms.offset.value = 1.45;
+      vignettePass.uniforms.darkness.value = 0.48;
       composer.addPass(vignettePass);
     }
 
     // Khởi tạo Post-Processing
     setTimeout(initPostProcessing, 500);
 
-    const ambientLight = new THREE.AmbientLight(0xc9a87a, 0.7);
+    const ambientLight = new THREE.AmbientLight(0xd8bc8d, 0.82);
     scene.add(ambientLight);
 
-    const sun = new THREE.DirectionalLight(0xffe0b0, 1.5);
+    const sun = new THREE.DirectionalLight(0xffe0b0, 1.45);
     sun.position.set(-14, 24, 18);
     sun.castShadow = true;
     sun.shadow.mapSize.set(2048, 2048);
@@ -492,15 +490,16 @@
     sun.shadow.camera.bottom = -28;
     scene.add(sun);
 
-    const fillLight = new THREE.HemisphereLight(0x9b7450, 0x3a2818, 0.55);
+    const fillLight = new THREE.HemisphereLight(0xc89f72, 0x4c3525, 0.68);
     scene.add(fillLight);
 
     const renderables = new Set();
     let currentRenderMode = 'solid';
 
     const materials = {
-      road: new THREE.MeshStandardMaterial({ color: 0x3d2b1a, roughness: 0.98 }),
-      mud: new THREE.MeshStandardMaterial({ color: 0x2e1e0f, roughness: 1 }),
+      road: new THREE.MeshStandardMaterial({ color: 0x4b2d1b, roughness: 0.98 }),
+      mud: new THREE.MeshStandardMaterial({ color: 0x6f351d, roughness: 1 }),
+      sideGround: new THREE.MeshStandardMaterial({ color: 0x6b321c, roughness: 1 }),
       grass: new THREE.MeshStandardMaterial({ color: 0x1a3318, roughness: 0.95 }),
       jungle: new THREE.MeshStandardMaterial({ color: 0x0f2a15, roughness: 0.88 }),
       tank: new THREE.MeshStandardMaterial({ color: 0x2e4420, roughness: 0.82, metalness: 0.2 }),
@@ -522,6 +521,107 @@
       mountain: new THREE.MeshStandardMaterial({ color: 0x1a1510, roughness: 1 }),
       aircraft: new THREE.MeshStandardMaterial({ color: 0x3a3a38, roughness: 0.6, metalness: 0.5 })
     };
+
+    const textureLoader = new THREE.TextureLoader();
+    const maxAnisotropy = renderer.capabilities.getMaxAnisotropy ? renderer.capabilities.getMaxAnisotropy() : 1;
+    const textureAssets = {
+      muddyGround: {
+        color: 'assets/textures/Ground054/Ground054_1K-JPG_Color.jpg',
+        normal: 'assets/textures/Ground054/Ground054_1K-JPG_NormalGL.jpg',
+        roughness: 'assets/textures/Ground054/Ground054_1K-JPG_Roughness.jpg'
+      },
+      mossGround: {
+        color: 'assets/textures/Ground037/Ground037_1K-JPG_Color.jpg',
+        normal: 'assets/textures/Ground037/Ground037_1K-JPG_NormalGL.jpg',
+        roughness: 'assets/textures/Ground037/Ground037_1K-JPG_Roughness.jpg'
+      },
+      rustyMetal: {
+        color: 'assets/textures/Metal063/Metal063_1K-JPG_Color.jpg',
+        normal: 'assets/textures/Metal063/Metal063_1K-JPG_NormalGL.jpg',
+        roughness: 'assets/textures/Metal063/Metal063_1K-JPG_Roughness.jpg',
+        metalness: 'assets/textures/Metal063/Metal063_1K-JPG_Metalness.jpg'
+      },
+      tankCamo: {
+        color: 'assets/textures/tank_camo.svg',
+        normal: 'assets/textures/Metal063/Metal063_1K-JPG_NormalGL.jpg',
+        roughness: 'assets/textures/Metal063/Metal063_1K-JPG_Roughness.jpg',
+        metalness: 'assets/textures/Metal063/Metal063_1K-JPG_Metalness.jpg'
+      }
+    };
+
+    function configureTexture(texture, repeat = [1, 1], useSrgb = false) {
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
+      texture.repeat.set(repeat[0], repeat[1]);
+      texture.anisotropy = Math.min(maxAnisotropy, 8);
+      if (useSrgb) {
+        if (THREE.SRGBColorSpace) {
+          texture.colorSpace = THREE.SRGBColorSpace;
+        } else {
+          texture.encoding = THREE.sRGBEncoding;
+        }
+      }
+      return texture;
+    }
+
+    function loadGameTexture(path, repeat, useSrgb = false) {
+      const texture = textureLoader.load(
+        path,
+        () => { texture.needsUpdate = true; },
+        undefined,
+        (error) => console.warn('Khong tai duoc texture:', path, error)
+      );
+      return configureTexture(texture, repeat, useSrgb);
+    }
+
+    function applyTextureSetToMaterial(material, textureSet, options = {}) {
+      const repeat = options.repeat || [1, 1];
+      if (options.tint !== undefined) {
+        material.color.setHex(options.tint);
+      }
+      if (options.emissive !== undefined) {
+        material.emissive.setHex(options.emissive);
+        material.emissiveIntensity = options.emissiveIntensity ?? 0.08;
+      }
+      if (options.useColorMap === false) {
+        material.map = null;
+      } else {
+        material.map = loadGameTexture(textureSet.color, repeat, true);
+      }
+      if (textureSet.normal) {
+        material.normalMap = loadGameTexture(textureSet.normal, repeat, false);
+        const normalScale = options.normalScale ?? 0.7;
+        material.normalScale = new THREE.Vector2(normalScale, normalScale);
+      }
+      if (textureSet.roughness) {
+        material.roughnessMap = loadGameTexture(textureSet.roughness, repeat, false);
+      }
+      if (textureSet.metalness) {
+        material.metalnessMap = loadGameTexture(textureSet.metalness, repeat, false);
+      }
+      material.needsUpdate = true;
+    }
+
+    function applyDefaultTextures() {
+      applyTextureSetToMaterial(materials.road, textureAssets.muddyGround, { repeat: [1.5, 4], normalScale: 0.32, tint: 0x4b2d1b, useColorMap: false });
+      applyTextureSetToMaterial(materials.mud, textureAssets.muddyGround, { repeat: [3.2, 3.2], normalScale: 0.45, tint: 0x7a3b21 });
+      applyTextureSetToMaterial(materials.sideGround, textureAssets.muddyGround, { repeat: [2.8, 2.8], normalScale: 0.22, tint: 0x6b321c, useColorMap: false });
+      applyTextureSetToMaterial(materials.grass, textureAssets.mossGround, { repeat: [5, 5], normalScale: 0.5, tint: 0x78995a });
+      applyTextureSetToMaterial(materials.jungle, textureAssets.mossGround, { repeat: [2.5, 2.5], normalScale: 0.35, tint: 0x5f7f43 });
+      applyTextureSetToMaterial(materials.tank, textureAssets.tankCamo, { repeat: [1.7, 1.7], normalScale: 0.35, tint: 0xf0efc7, emissive: 0x253514, emissiveIntensity: 0.12 });
+      applyTextureSetToMaterial(materials.tankDark, textureAssets.tankCamo, { repeat: [1.45, 1.45], normalScale: 0.32, tint: 0xb8bd86, emissive: 0x1c2810, emissiveIntensity: 0.1 });
+      applyTextureSetToMaterial(materials.tankLight, textureAssets.tankCamo, { repeat: [1.25, 1.25], normalScale: 0.3, tint: 0xfff3bd, emissive: 0x2f3817, emissiveIntensity: 0.12 });
+      applyTextureSetToMaterial(materials.metal, textureAssets.rustyMetal, { repeat: [1.3, 1.3], normalScale: 0.55, tint: 0xb8b8b0 });
+      applyTextureSetToMaterial(materials.barrel, textureAssets.rustyMetal, { repeat: [1.1, 1.1], normalScale: 0.65, tint: 0xb0aaa0 });
+      applyTextureSetToMaterial(materials.barrelRust, textureAssets.rustyMetal, { repeat: [1.1, 1.1], normalScale: 0.75, tint: 0xd29b72 });
+      applyTextureSetToMaterial(materials.aircraft, textureAssets.rustyMetal, { repeat: [1.8, 1.8], normalScale: 0.4, tint: 0xb8b8b0 });
+      applyTextureSetToMaterial(materials.sandbag, textureAssets.muddyGround, { repeat: [1.6, 1.6], normalScale: 0.35, tint: 0xd3bd84 });
+      applyTextureSetToMaterial(materials.rock, textureAssets.muddyGround, { repeat: [1.2, 1.2], normalScale: 0.55, tint: 0xa79b8a });
+      applyTextureSetToMaterial(materials.crater, textureAssets.muddyGround, { repeat: [1.4, 1.4], normalScale: 0.6, tint: 0x625848 });
+      applyTextureSetToMaterial(materials.mountain, textureAssets.muddyGround, { repeat: [2, 2], normalScale: 0.45, tint: 0x776958 });
+    }
+
+    applyDefaultTextures();
 
     // --- Procedural Noise cho shader ---
     const glslNoise = `
@@ -569,25 +669,32 @@
         float n = snoise(vWPos.xz * 0.35);
         float n2 = snoise(vWPos.xz * 1.5);
         float mudNoise = n * 0.6 + n2 * 0.4;
-        
-        // Puddles and wet mud
+
+        // Damp mud without mirror-like glare.
         if (mudNoise < -0.15) {
-          roughnessFactor = 0.05;
-          metalnessFactor = 0.6;
+          roughnessFactor = 0.38;
         } else {
           roughnessFactor = 0.8 - mudNoise * 0.3;
-          metalnessFactor = 0.1;
+        }
+        `
+      ).replace(
+        '#include <metalnessmap_fragment>',
+        `#include <metalnessmap_fragment>
+        if (mudNoise < -0.15) {
+          metalnessFactor = max(metalnessFactor, 0.06);
+        } else {
+          metalnessFactor = min(metalnessFactor, 0.04);
         }
         `
       );
     };
 
     materials.road.onBeforeCompile = injectMudShader;
-    materials.mud.onBeforeCompile = injectMudShader;
 
     function setupMesh(mesh) {
       mesh.castShadow = true;
       mesh.receiveShadow = true;
+      mesh.userData.defaultCastShadow = true;
       if (mesh.material) {
         const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
         for (const material of mats) {
@@ -605,6 +712,13 @@
       renderables.add(mesh);
       applyRenderModeToMesh(mesh, currentRenderMode);
       return mesh;
+    }
+
+    function disableShadowCaster(object, receiveShadow = true) {
+      object.castShadow = false;
+      object.receiveShadow = receiveShadow;
+      object.userData.defaultCastShadow = false;
+      return object;
     }
 
     function applyRenderModeToMesh(mesh, mode) {
@@ -641,6 +755,138 @@
       return mesh;
     }
 
+    function makeCanvasTexture(width, height, draw) {
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      draw(ctx, width, height);
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.anisotropy = Math.min(maxAnisotropy, 8);
+      if (THREE.SRGBColorSpace) {
+        texture.colorSpace = THREE.SRGBColorSpace;
+      } else {
+        texture.encoding = THREE.sRGBEncoding;
+      }
+      return texture;
+    }
+
+    const obstacleTextures = {
+      crater: makeCanvasTexture(512, 512, (ctx, w, h) => {
+        const cx = w / 2;
+        const cy = h / 2;
+        ctx.clearRect(0, 0, w, h);
+        const outer = ctx.createRadialGradient(cx, cy, 22, cx, cy, 236);
+        outer.addColorStop(0, 'rgba(7, 6, 4, 0.95)');
+        outer.addColorStop(0.32, 'rgba(22, 15, 8, 0.92)');
+        outer.addColorStop(0.58, 'rgba(84, 54, 28, 0.86)');
+        outer.addColorStop(0.78, 'rgba(154, 104, 58, 0.55)');
+        outer.addColorStop(1, 'rgba(116, 76, 39, 0)');
+        ctx.fillStyle = outer;
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, 224, 176, -0.12, 0, Math.PI * 2);
+        ctx.fill();
+        for (let i = 0; i < 48; i++) {
+          const a = Math.random() * Math.PI * 2;
+          const r = 92 + Math.random() * 130;
+          const x = cx + Math.cos(a) * r;
+          const y = cy + Math.sin(a) * r * 0.72;
+          ctx.fillStyle = `rgba(${80 + Math.random() * 70}, ${48 + Math.random() * 34}, ${24 + Math.random() * 20}, ${0.35 + Math.random() * 0.32})`;
+          ctx.beginPath();
+          ctx.ellipse(x, y, 10 + Math.random() * 30, 4 + Math.random() * 15, a, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalCompositeOperation = 'screen';
+        const rim = ctx.createRadialGradient(cx - 28, cy - 34, 42, cx, cy, 210);
+        rim.addColorStop(0, 'rgba(255, 192, 104, 0.16)');
+        rim.addColorStop(0.45, 'rgba(219, 135, 65, 0.28)');
+        rim.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = rim;
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, 220, 170, -0.12, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalCompositeOperation = 'source-over';
+      }),
+      sandbags: makeCanvasTexture(512, 320, (ctx, w, h) => {
+        ctx.clearRect(0, 0, w, h);
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
+        ctx.shadowBlur = 18;
+        ctx.shadowOffsetY = 8;
+        const bag = (x, y, bw, bh, color) => {
+          ctx.fillStyle = color;
+          ctx.beginPath();
+          ctx.ellipse(x + bw / 2, y + bh / 2, bw / 2, bh / 2, -0.05, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+          ctx.strokeStyle = 'rgba(54, 38, 19, 0.45)';
+          ctx.lineWidth = 8;
+          ctx.stroke();
+          ctx.strokeStyle = 'rgba(255, 234, 157, 0.2)';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(x + bw * 0.18, y + bh * 0.38);
+          ctx.bezierCurveTo(x + bw * 0.36, y + bh * 0.18, x + bw * 0.72, y + bh * 0.18, x + bw * 0.84, y + bh * 0.42);
+          ctx.stroke();
+          ctx.shadowBlur = 18;
+        };
+        const colors = ['#92753f', '#b39252', '#806333', '#c0a260', '#9f7f44'];
+        for (let row = 0; row < 2; row++) {
+          for (let col = 0; col < 4; col++) {
+            const x = 32 + col * 112 + (row % 2) * 50;
+            const y = 146 - row * 78 + Math.sin(col) * 5;
+            bag(x, y, 128, 70, colors[(row * 4 + col) % colors.length]);
+          }
+        }
+        ctx.shadowBlur = 0;
+      }),
+      barrels: makeCanvasTexture(384, 512, (ctx, w, h) => {
+        ctx.clearRect(0, 0, w, h);
+        const barrel = (x, y, bw, bh, angle, color) => {
+          ctx.save();
+          ctx.translate(x + bw / 2, y + bh / 2);
+          ctx.rotate(angle);
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.52)';
+          ctx.shadowBlur = 18;
+          ctx.shadowOffsetY = 10;
+          const grad = ctx.createLinearGradient(-bw / 2, 0, bw / 2, 0);
+          grad.addColorStop(0, '#151713');
+          grad.addColorStop(0.18, color);
+          grad.addColorStop(0.5, '#777267');
+          grad.addColorStop(0.82, color);
+          grad.addColorStop(1, '#141410');
+          ctx.fillStyle = grad;
+          ctx.fillRect(-bw / 2, -bh / 2, bw, bh);
+          ctx.shadowBlur = 0;
+          ctx.strokeStyle = 'rgba(0, 0, 0, 0.7)';
+          ctx.lineWidth = 9;
+          ctx.strokeRect(-bw / 2, -bh / 2, bw, bh);
+          ctx.strokeStyle = 'rgba(245, 194, 93, 0.55)';
+          ctx.lineWidth = 5;
+          [-0.34, 0, 0.34].forEach((yy) => {
+            ctx.beginPath();
+            ctx.moveTo(-bw / 2 + 8, yy * bh);
+            ctx.lineTo(bw / 2 - 8, yy * bh);
+            ctx.stroke();
+          });
+          ctx.fillStyle = 'rgba(120, 55, 24, 0.48)';
+          for (let i = 0; i < 14; i++) {
+            ctx.beginPath();
+            ctx.ellipse(-bw / 2 + Math.random() * bw, -bh / 2 + Math.random() * bh, 5 + Math.random() * 14, 2 + Math.random() * 8, Math.random(), 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+        };
+        barrel(74, 92, 118, 300, 0.06, '#343a35');
+        barrel(165, 190, 118, 260, -0.62, '#5a3320');
+      })
+    };
+
+    const obstacleMaterials = {
+      crater: new THREE.MeshBasicMaterial({ map: obstacleTextures.crater, transparent: true, depthWrite: false, side: THREE.DoubleSide }),
+      sandbags: new THREE.MeshBasicMaterial({ map: obstacleTextures.sandbags, transparent: true, depthWrite: false, side: THREE.DoubleSide }),
+      barrels: new THREE.MeshBasicMaterial({ map: obstacleTextures.barrels, transparent: true, depthWrite: false, side: THREE.DoubleSide })
+    };
+
     const world = new THREE.Group();
     scene.add(world);
 
@@ -654,19 +900,23 @@
       segment.rotation.x = -Math.PI / 2;
       segment.position.z = 12 - i * roadLength;
       segment.receiveShadow = true;
+      disableShadowCaster(segment);
+      segment.userData.textureRole = 'road';
       roadGroup.add(segment);
       roadSegments.push(segment);
 
-      const leftVerge = setupMesh(new THREE.Mesh(new THREE.PlaneGeometry(12, roadLength), materials.mud));
+      const leftVerge = setupMesh(new THREE.Mesh(new THREE.PlaneGeometry(12, roadLength), materials.sideGround));
       leftVerge.rotation.x = -Math.PI / 2;
       leftVerge.position.set(-11.75, 0.01, segment.position.z);
+      disableShadowCaster(leftVerge, false);
       roadGroup.add(leftVerge);
 
       const rightVerge = leftVerge.clone();
-      rightVerge.material = materials.mud;
+      rightVerge.material = materials.sideGround;
       rightVerge.position.x = 11.75;
       rightVerge.userData.points = null;
       setupMesh(rightVerge);
+      disableShadowCaster(rightVerge, false);
       roadGroup.add(rightVerge);
       roadSegments.push(leftVerge, rightVerge);
     }
@@ -689,8 +939,9 @@
     const trunkGeo = new THREE.CylinderGeometry(0.2, 0.25, 2.5, 8);
     const trunkMat = new THREE.MeshStandardMaterial({ color: 0x2a1a0a, roughness: 0.95 });
     const trunkInstanced = new THREE.InstancedMesh(trunkGeo, trunkMat, treeCount);
-    trunkInstanced.castShadow = true;
+    trunkInstanced.castShadow = false;
     trunkInstanced.receiveShadow = true;
+    trunkInstanced.userData.defaultCastShadow = false;
 
     const crownGeo = new THREE.ConeGeometry(1.5, 4.0, 7);
     const crownMat = materials.jungle.clone();
@@ -712,8 +963,9 @@
     };
 
     const crownInstanced = new THREE.InstancedMesh(crownGeo, crownMat, treeCount);
-    crownInstanced.castShadow = true;
+    crownInstanced.castShadow = false;
     crownInstanced.receiveShadow = true;
+    crownInstanced.userData.defaultCastShadow = false;
 
     const dummy = new THREE.Object3D();
     for (let i = 0; i < treeCount; i++) {
@@ -778,12 +1030,13 @@
     const paddies = new THREE.Group();
     scene.add(paddies);
     for (let i = 0; i < 6; i++) {
-      const w = 10 + Math.random() * 8;
-      const h = 18 + Math.random() * 12;
+      const w = 7 + Math.random() * 5;
+      const h = 14 + Math.random() * 8;
       const paddyGeo = new THREE.PlaneGeometry(w, h);
-      const paddy = setupMesh(new THREE.Mesh(paddyGeo, materials.mud));
+      const paddy = setupMesh(new THREE.Mesh(paddyGeo, materials.sideGround));
       paddy.rotation.x = -Math.PI / 2;
-      paddy.position.set((i % 2 ? 1 : -1) * (18 + Math.random() * 10), 0.02, 6 - i * 35);
+      paddy.position.set((i % 2 ? 1 : -1) * (24 + Math.random() * 14), 0.018, 6 - i * 35);
+      disableShadowCaster(paddy, false);
       paddies.add(paddy);
     }
 
@@ -801,6 +1054,16 @@
     const tankBase = new THREE.Group();
     tankBase.position.set(0, 0, 6.2);
     scene.add(tankBase);
+
+    const tankVisibilityLight = new THREE.PointLight(0xffd89a, 0.32, 3.2, 1.9);
+    tankVisibilityLight.position.set(0, 3.6, 2.4);
+    tankVisibilityLight.castShadow = false;
+    tankBase.add(tankVisibilityLight);
+
+    const tankRimLight = new THREE.PointLight(0xa8c8ff, 0.2, 4.0, 2.0);
+    tankRimLight.position.set(0, 2.4, -2.2);
+    tankRimLight.castShadow = false;
+    tankBase.add(tankRimLight);
 
     const tank = new THREE.Group();
     tankBase.add(tank);
@@ -853,27 +1116,8 @@
 
     const selectionBases = {
       tank: tankBase,
-      showcase: null,
       road: roadGroup
     };
-
-    const showcase = new THREE.Group();
-    showcase.position.set(9.5, 1.25, -18);
-    scene.add(showcase);
-    selectionBases.showcase = showcase;
-
-    const showcaseItems = [
-      setupMesh(new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.2), new THREE.MeshStandardMaterial({ color: 0xd1a85a, roughness: 0.74 }))),
-      setupMesh(new THREE.Mesh(new THREE.SphereGeometry(0.72, 24, 14), new THREE.MeshStandardMaterial({ color: 0x719bc2, roughness: 0.62 }))),
-      setupMesh(new THREE.Mesh(new THREE.ConeGeometry(0.72, 1.45, 24), new THREE.MeshStandardMaterial({ color: 0xbb6e55, roughness: 0.72 }))),
-      setupMesh(new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.62, 1.25, 24), new THREE.MeshStandardMaterial({ color: 0x99a15f, roughness: 0.7 }))),
-      setupMesh(new THREE.Mesh(new THREE.TorusGeometry(0.56, 0.16, 12, 28), new THREE.MeshStandardMaterial({ color: 0x474c4d, roughness: 0.74, metalness: 0.15 }))),
-      setupMesh(new THREE.Mesh(new THREE.TeapotGeometry(0.52, 8), new THREE.MeshStandardMaterial({ color: 0xc5cbd0, roughness: 0.54, metalness: 0.1 })))
-    ];
-    showcaseItems.forEach((item, index) => {
-      item.position.set((index % 3) * 1.85 - 1.85, Math.floor(index / 3) * 1.65, 0);
-      showcase.add(item);
-    });
 
     const enemyTemplate = {
       object: null,
@@ -914,14 +1158,14 @@
 
     function makeCrater() {
       const group = new THREE.Group();
-      const pit = setupMesh(new THREE.Mesh(new THREE.CylinderGeometry(1.25, 1.6, 0.18, 28), materials.crater));
-      pit.scale.z = 0.72;
-      pit.position.y = 0.06;
-      const rim = setupMesh(new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.16, 8, 28), materials.mud));
-      rim.rotation.x = Math.PI / 2;
-      rim.scale.y = 0.72;
-      rim.position.y = 0.16;
-      group.add(pit, rim);
+      const decal = setupMesh(new THREE.Mesh(new THREE.PlaneGeometry(3.4, 2.65), obstacleMaterials.crater.clone()));
+      decal.rotation.x = -Math.PI / 2;
+      decal.rotation.z = (Math.random() - 0.5) * 0.35;
+      decal.position.y = 0.055;
+      decal.renderOrder = 2;
+      decal.receiveShadow = false;
+      disableShadowCaster(decal);
+      group.add(decal);
       group.userData.kind = 'crater';
       group.userData.radius = 1.35;
       return group;
@@ -929,17 +1173,12 @@
 
     function makeSandbagWall() {
       const group = new THREE.Group();
-      for (let row = 0; row < 2; row++) {
-        for (let col = -1; col <= 1; col++) {
-          const bag = setupMesh(new THREE.Mesh(
-            new THREE.BoxGeometry(0.7, 0.3, 0.4),
-            materials.sandbag
-          ));
-          bag.position.set(col * 0.65 + (row % 2) * 0.3, 0.2 + row * 0.28, 0);
-          bag.rotation.y = (Math.random() - 0.5) * 0.15;
-          group.add(bag);
-        }
-      }
+      const wall = setupMesh(new THREE.Mesh(new THREE.PlaneGeometry(2.65, 1.55), obstacleMaterials.sandbags.clone()));
+      wall.position.set(0, 0.78, 0);
+      wall.renderOrder = 3;
+      wall.receiveShadow = false;
+      disableShadowCaster(wall);
+      group.add(wall);
       group.userData.kind = 'sandbag';
       group.userData.radius = 1.2;
       return group;
@@ -947,11 +1186,12 @@
 
     function makeBarrel() {
       const group = new THREE.Group();
-      const barrel1 = makeCylinder(0.4, 0.4, 1.1, 12, materials.barrel, 0, 0.55, 0);
-      group.add(barrel1);
-      const barrel2 = makeCylinder(0.38, 0.38, 1.1, 12, materials.barrelRust, 0.7, 0.35, 0.2);
-      barrel2.rotation.z = 0.4;
-      group.add(barrel2);
+      const barrels = setupMesh(new THREE.Mesh(new THREE.PlaneGeometry(1.85, 2.25), obstacleMaterials.barrels.clone()));
+      barrels.position.set(0.15, 1.08, 0);
+      barrels.renderOrder = 3;
+      barrels.receiveShadow = false;
+      disableShadowCaster(barrels);
+      group.add(barrels);
       group.userData.kind = 'barrel';
       group.userData.radius = 1.3;
       return group;
@@ -1069,6 +1309,7 @@
     }
 
     function dropBomb(aircraft) {
+      playAircraftBombDropSound();
       const bomb = setupMesh(new THREE.Mesh(new THREE.SphereGeometry(0.25, 8, 6), new THREE.MeshStandardMaterial({ color: 0x1a1a18, roughness: 0.7, metalness: 0.5 })));
       bomb.position.copy(aircraft.position);
       bomb.userData.velocity = new THREE.Vector3(aircraft.userData.strafeX * 0.1, -0.5, aircraft.userData.speed * 0.3);
@@ -1197,6 +1438,7 @@
     function shoot() {
       if (!game.running || game.over) return;
       applyCameraShake(0.25);
+      playTankCannonSound();
       const shell = makeCylinder(0.12, 0.12, 0.55, 12, materials.shell);
       shell.rotation.x = Math.PI / 2;
       shell.position.set(tankBase.position.x, 1.72, tankBase.position.z - 2.05);
@@ -1303,7 +1545,7 @@
     }
 
     // --- PROCEDURAL AUDIO ---
-    let audioCtx, engineOsc, engineGain, masterGain;
+    let audioCtx, masterGain;
     const listener = new THREE.AudioListener();
     camera.add(listener);
 
@@ -1314,78 +1556,105 @@
       masterGain = audioCtx.createGain();
       masterGain.gain.value = 0.4;
       masterGain.connect(audioCtx.destination);
-
-      // Engine rumble
-      engineOsc = audioCtx.createOscillator();
-      engineOsc.type = 'sawtooth';
-      engineOsc.frequency.value = 40;
-
-      const lfo = audioCtx.createOscillator();
-      lfo.type = 'sine';
-      lfo.frequency.value = 15;
-      const lfoGain = audioCtx.createGain();
-      lfoGain.gain.value = 12;
-      lfo.connect(lfoGain);
-      lfoGain.connect(engineOsc.frequency);
-
-      engineGain = audioCtx.createGain();
-      engineGain.gain.value = 0.05;
-
-      engineOsc.connect(engineGain);
-      engineGain.connect(masterGain);
-
-      engineOsc.start();
-      lfo.start();
-
-      // Ambient Birds
-      setInterval(() => {
-        if (!game.running) return;
-        if (Math.random() < 0.25) playBirdChirp();
-      }, 2500);
     }
 
-    function playBirdChirp() {
-      if (!audioCtx) return;
-      const osc = audioCtx.createOscillator();
+    function playNoiseBurst(duration, filterType, frequency, volume, decay) {
+      if (!audioCtx) return null;
+      const bufferSize = Math.floor(audioCtx.sampleRate * duration);
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() - 0.5) * Math.exp(-i / (audioCtx.sampleRate * decay));
+      }
+
+      const source = audioCtx.createBufferSource();
+      source.buffer = buffer;
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = filterType;
+      filter.frequency.value = frequency;
+
       const gain = audioCtx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(2000 + Math.random() * 1500, audioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(3500 + Math.random() * 1000, audioCtx.currentTime + 0.15);
+      gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
 
-      gain.gain.setValueAtTime(0, audioCtx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.05, audioCtx.currentTime + 0.05);
-      gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.25);
-
-      osc.connect(gain);
+      source.connect(filter);
+      filter.connect(gain);
       gain.connect(masterGain);
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.3);
+      source.start();
+      return source;
+    }
+
+    function playTankCannonSound() {
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      playNoiseBurst(0.42, 'lowpass', 420, 0.95, 0.08);
+
+      const thump = audioCtx.createOscillator();
+      const thumpGain = audioCtx.createGain();
+      thump.type = 'sine';
+      thump.frequency.setValueAtTime(92, now);
+      thump.frequency.exponentialRampToValueAtTime(36, now + 0.22);
+      thumpGain.gain.setValueAtTime(0.85, now);
+      thumpGain.gain.exponentialRampToValueAtTime(0.01, now + 0.34);
+      thump.connect(thumpGain);
+      thumpGain.connect(masterGain);
+      thump.start(now);
+      thump.stop(now + 0.36);
+
+      const crack = audioCtx.createOscillator();
+      const crackGain = audioCtx.createGain();
+      crack.type = 'square';
+      crack.frequency.setValueAtTime(165, now);
+      crack.frequency.exponentialRampToValueAtTime(72, now + 0.12);
+      crackGain.gain.setValueAtTime(0.32, now);
+      crackGain.gain.exponentialRampToValueAtTime(0.01, now + 0.16);
+      crack.connect(crackGain);
+      crackGain.connect(masterGain);
+      crack.start(now);
+      crack.stop(now + 0.18);
+    }
+
+    function playAircraftBombDropSound() {
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+
+      const engine = audioCtx.createOscillator();
+      const engineGain = audioCtx.createGain();
+      const engineFilter = audioCtx.createBiquadFilter();
+      engine.type = 'sawtooth';
+      engine.frequency.setValueAtTime(86, now);
+      engine.frequency.linearRampToValueAtTime(58, now + 1.0);
+      engineFilter.type = 'lowpass';
+      engineFilter.frequency.value = 520;
+      engineGain.gain.setValueAtTime(0.18, now);
+      engineGain.gain.linearRampToValueAtTime(0.3, now + 0.2);
+      engineGain.gain.exponentialRampToValueAtTime(0.01, now + 1.15);
+      engine.connect(engineFilter);
+      engineFilter.connect(engineGain);
+      engineGain.connect(masterGain);
+      engine.start(now);
+      engine.stop(now + 1.2);
+
+      const whistle = audioCtx.createOscillator();
+      const whistleGain = audioCtx.createGain();
+      whistle.type = 'triangle';
+      whistle.frequency.setValueAtTime(920, now + 0.08);
+      whistle.frequency.exponentialRampToValueAtTime(260, now + 1.08);
+      whistleGain.gain.setValueAtTime(0.001, now);
+      whistleGain.gain.linearRampToValueAtTime(0.18, now + 0.18);
+      whistleGain.gain.exponentialRampToValueAtTime(0.01, now + 1.12);
+      whistle.connect(whistleGain);
+      whistleGain.connect(masterGain);
+      whistle.start(now + 0.05);
+      whistle.stop(now + 1.15);
+
+      playNoiseBurst(0.22, 'bandpass', 1200, 0.08, 0.08);
     }
 
     function playExplosionSound() {
       if (!audioCtx) return;
-      const bufferSize = audioCtx.sampleRate * 0.8;
-      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        data[i] = (Math.random() - 0.5) * Math.exp(-i / (audioCtx.sampleRate * 0.15));
-      }
-
-      const noise = audioCtx.createBufferSource();
-      noise.buffer = buffer;
-
-      const filter = audioCtx.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.value = 600;
-
-      const gain = audioCtx.createGain();
-      gain.gain.setValueAtTime(1.0, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.7);
-
-      noise.connect(filter);
-      filter.connect(gain);
-      gain.connect(masterGain);
-      noise.start();
+      playNoiseBurst(0.8, 'lowpass', 600, 1.0, 0.15);
     }
 
     function resetGame() {
@@ -1475,7 +1744,7 @@
         // Apply curvature: bend road segments based on distance
         const distFromCam = segment.position.z - camera.position.z;
         const curveFactor = Math.pow(Math.max(0, -distFromCam) * roadCurveAmount, 1.6);
-        if (segment.material === materials.road) {
+        if (segment.userData.textureRole === 'road') {
           segment.position.x = curveShift * curveFactor * 0.015;
           // Slight Y displacement for depth feel
           segment.position.y = -Math.abs(distFromCam) * 0.002;
@@ -1663,7 +1932,7 @@
     }
 
     function updateCamera() {
-      const lookAt = new THREE.Vector3(tankBase.position.x * 0.32, 1.2, tankBase.position.z - 7);
+      const lookAt = new THREE.Vector3(tankBase.position.x * 0.08, 1.2, tankBase.position.z - 7);
       camera.lookAt(lookAt);
     }
 
@@ -1678,14 +1947,6 @@
           tank.visible = true;
         }
 
-        // Update audio engine
-        if (audioCtx) {
-          engineOsc.frequency.setTargetAtTime(40 + game.speed * 1.5, audioCtx.currentTime, 0.1);
-          engineGain.gain.setTargetAtTime(0.35, audioCtx.currentTime, 0.1);
-        }
-      } else if (audioCtx) {
-        engineOsc.frequency.setTargetAtTime(30, audioCtx.currentTime, 0.1);
-        engineGain.gain.setTargetAtTime(0.05, audioCtx.currentTime, 0.1);
       }
       updateRoad(delta);
       updateTank(delta, elapsed);
@@ -1710,7 +1971,6 @@
           }
         });
       });
-      showcase.rotation.y += delta * 0.35;
       mixers.forEach((mixer) => mixer.update(delta));
       updateCamera();
       updateHud();
@@ -1730,11 +1990,6 @@
         tank.position.set(tx, ty, tz);
         tank.rotation.set(rx, ry, rz);
         tank.scale.setScalar(scale);
-      } else if (target === showcase) {
-        showcase.position.set(9.5 + tx, 1.25 + ty, -18 + tz);
-        showcase.rotation.set(rx, showcase.rotation.y, rz);
-        showcase.userData.extraY = ry;
-        showcase.scale.setScalar(scale);
       } else {
         roadGroup.position.set(tx, ty, tz);
         roadGroup.rotation.set(rx, ry, rz);
@@ -1748,9 +2003,6 @@
       tank.position.set(0, 0, 0);
       tank.rotation.set(0, 0, 0);
       tank.scale.setScalar(1);
-      showcase.position.set(9.5, 1.25, -18);
-      showcase.rotation.set(0, 0, 0);
-      showcase.scale.setScalar(1);
       roadGroup.position.set(0, 0, 0);
       roadGroup.rotation.set(0, 0, 0);
       roadGroup.scale.setScalar(1);
@@ -1770,11 +2022,8 @@
         meshes.push(...tankParts);
         texture.repeat.set(1.4, 1.4);
       } else if (target === 'road') {
-        meshes.push(...roadSegments.filter((mesh) => mesh.material === materials.road));
+        meshes.push(...roadSegments.filter((mesh) => mesh.userData.textureRole === 'road'));
         texture.repeat.set(2, 8);
-      } else {
-        meshes.push(...showcaseItems);
-        texture.repeat.set(1, 1);
       }
       meshes.forEach((mesh) => {
         if (!mesh.material || mesh.userData.points === undefined) return;
@@ -1900,7 +2149,9 @@
     document.getElementById('shadowToggle').addEventListener('change', (event) => {
       renderer.shadowMap.enabled = event.target.checked;
       scene.traverse((object) => {
-        if (object.isMesh) object.castShadow = event.target.checked;
+        if (object.isMesh || object.isInstancedMesh) {
+          object.castShadow = event.target.checked && object.userData.defaultCastShadow !== false;
+        }
       });
     });
 

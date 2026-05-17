@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>He toa do 3D - Minh hoa truc x, y, z</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f3f2ee;
+      --panel: #ffffff;
+      --text: #1f1f1f;
+      --muted: #4f4f4f;
+      --x: #e15241;
+      --y: #2a8f5c;
+      --z: #3b6ea8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      font-family: "IBM Plex Sans", "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    .wrap {
+      min-height: 100%;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .card {
+      width: min(920px, 100%);
+      background: var(--panel);
+      border-radius: 16px;
+      box-shadow: 0 24px 50px rgba(0, 0, 0, 0.12);
+      padding: 22px;
+      display: grid;
+      gap: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(22px, 3vw, 30px);
+      letter-spacing: 0.2px;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .canvas-wrap {
+      background: linear-gradient(135deg, rgba(225, 210, 180, 0.28), rgba(245, 240, 230, 0.9));
+      border-radius: 12px;
+      padding: 18px;
+      display: grid;
+      place-items: center;
+    }
+
+    canvas {
+      width: 100%;
+      height: auto;
+      max-height: 520px;
+      display: block;
+      border-radius: 10px;
+      background: #fbfbf9;
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+    }
+
+    .legend {
+      display: grid;
+      gap: 6px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .x { background: var(--x); }
+    .y { background: var(--y); }
+    .z { background: var(--z); }
+
+    .note {
+      font-size: 13px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div>
+        <h1>Minh hoa he toa do 3D (x, y, z)</h1>
+        <p>Hinh ve mo ta ba truc toa do trong khong gian 3D. Truc X (do) va Z (xanh) nam tren mat phang, truc Y (xanh la) huong len tren.</p>
+      </div>
+
+      <div class="canvas-wrap">
+        <canvas id="axisCanvas" width="880" height="520" aria-label="Hinh ve truc toa do 3D"></canvas>
+      </div>
+
+      <div class="legend">
+        <span><i class="dot x"></i>Truc X</span>
+        <span><i class="dot y"></i>Truc Y</span>
+        <span><i class="dot z"></i>Truc Z</span>
+      </div>
+
+      <div class="note">Goi y: ban co the chen file nay vao bao cao hoac mo truc tiep bang trinh duyet.</div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("axisCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const colors = {
+      x: getComputedStyle(document.documentElement).getPropertyValue("--x").trim(),
+      y: getComputedStyle(document.documentElement).getPropertyValue("--y").trim(),
+      z: getComputedStyle(document.documentElement).getPropertyValue("--z").trim()
+    };
+
+    function project(point) {
+      // Simple isometric projection
+      const isoX = point.x - point.z;
+      const isoY = point.y + (point.x + point.z) * 0.5;
+      return { x: isoX, y: isoY };
+    }
+
+    function drawArrow(from, to, color, label) {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(from.x, from.y);
+      ctx.lineTo(to.x, to.y);
+      ctx.stroke();
+
+      const angle = Math.atan2(to.y - from.y, to.x - from.x);
+      const head = 12;
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(to.x, to.y);
+      ctx.lineTo(to.x - head * Math.cos(angle - Math.PI / 6), to.y - head * Math.sin(angle - Math.PI / 6));
+      ctx.lineTo(to.x - head * Math.cos(angle + Math.PI / 6), to.y - head * Math.sin(angle + Math.PI / 6));
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = "#1f1f1f";
+      ctx.font = "600 16px IBM Plex Sans, Segoe UI, Arial, sans-serif";
+      ctx.fillText(label, to.x + 10, to.y + 6);
+    }
+
+    function drawGrid(origin, size, step) {
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.08)";
+      ctx.lineWidth = 1;
+      for (let i = -size; i <= size; i += step) {
+        const a = project({ x: i, y: 0, z: -size });
+        const b = project({ x: i, y: 0, z: size });
+        ctx.beginPath();
+        ctx.moveTo(origin.x + a.x, origin.y - a.y);
+        ctx.lineTo(origin.x + b.x, origin.y - b.y);
+        ctx.stroke();
+
+        const c = project({ x: -size, y: 0, z: i });
+        const d = project({ x: size, y: 0, z: i });
+        ctx.beginPath();
+        ctx.moveTo(origin.x + c.x, origin.y - c.y);
+        ctx.lineTo(origin.x + d.x, origin.y - d.y);
+        ctx.stroke();
+      }
+    }
+
+    function render() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const origin = { x: canvas.width * 0.5, y: canvas.height * 0.68 };
+      drawGrid(origin, 160, 40);
+
+      const scale = 140;
+      const axes = {
+        x: { x: scale, y: 0, z: 0 },
+        y: { x: 0, y: scale, z: 0 },
+        z: { x: 0, y: 0, z: scale }
+      };
+
+      const originProj = project({ x: 0, y: 0, z: 0 });
+      const originScreen = { x: origin.x + originProj.x, y: origin.y - originProj.y };
+
+      const xProj = project(axes.x);
+      const yProj = project(axes.y);
+      const zProj = project(axes.z);
+
+      drawArrow(originScreen, { x: origin.x + xProj.x, y: origin.y - xProj.y }, colors.x, "X");
+      drawArrow(originScreen, { x: origin.x + yProj.x, y: origin.y - yProj.y }, colors.y, "Y");
+      drawArrow(originScreen, { x: origin.x + zProj.x, y: origin.y - zProj.y }, colors.z, "Z");
+
+      ctx.fillStyle = "#2a2a2a";
+      ctx.beginPath();
+      ctx.arc(originScreen.x, originScreen.y, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.font = "12px IBM Plex Sans, Segoe UI, Arial, sans-serif";
+      ctx.fillStyle = "#3c3c3c";
+      ctx.fillText("(0, 0, 0)", originScreen.x + 8, originScreen.y - 8);
+    }
+
+    render();
+  </script>
+</body>
+</html>
