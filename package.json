@@ -1,0 +1,10 @@
+{
+  "name": "tank-runner-3d-computer-graphics",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Three.js computer graphics project with 3D tank runner gameplay and graphics controls.",
+  "scripts": {
+    "dev": "python -m http.server 5500",
+    "check": "node --check src/js/app.js"
+  }
+}
