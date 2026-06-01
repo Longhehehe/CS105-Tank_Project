@@ -365,6 +365,21 @@ function setupMesh(mesh) {
   return mesh;
 }
 
+function removeFromScene(object) {
+  if (!object) return;
+  object.traverse((child) => {
+    renderables.delete(child);
+    if (child.userData && child.userData.points) {
+      renderables.delete(child.userData.points);
+    }
+  });
+  if (object.parent) {
+    object.parent.remove(object);
+  } else {
+    scene.remove(object);
+  }
+}
+
 function disableShadowCaster(object, receiveShadow = true) {
   object.castShadow = false;
   object.receiveShadow = receiveShadow;
@@ -1115,6 +1130,35 @@ const aircrafts = [];
 const enemyBombs = [];
 const enemyBullets = [];
 
+const projectileAssets = {
+  tankShellGeometry: new THREE.CylinderGeometry(0.2, 0.2, 0.88, 16),
+  bombGeometry: new THREE.SphereGeometry(0.52, 12, 8),
+  enemyBulletGeometry: new THREE.CylinderGeometry(0.14, 0.14, 1.15, 10),
+  dustGeometry: new THREE.SphereGeometry(1, 6, 6),
+  tankShellMaterial: materials.shell.clone(),
+  bombMaterial: new THREE.MeshStandardMaterial({
+    color: 0x2b241d,
+    emissive: 0xff5a18,
+    emissiveIntensity: 0.24,
+    roughness: 0.72,
+    metalness: 0.42
+  }),
+  enemyBulletMaterial: new THREE.MeshStandardMaterial({
+    color: 0xffd36a,
+    emissive: 0xff7a00,
+    emissiveIntensity: 1.35,
+    roughness: 0.35
+  })
+};
+
+function makeFastProjectile(geometry, material) {
+  const mesh = new THREE.Mesh(geometry, material);
+  mesh.castShadow = false;
+  mesh.receiveShadow = false;
+  mesh.userData.defaultCastShadow = false;
+  return mesh;
+}
+
 function makeAircraft() {
   const ac = new THREE.Group();
   // Fuselage
@@ -1178,20 +1222,17 @@ function spawnAircraft() {
 
 function dropBomb(aircraft) {
   playAircraftBombDropSound();
-  const bomb = setupMesh(new THREE.Mesh(new THREE.SphereGeometry(0.52, 12, 8), new THREE.MeshStandardMaterial({ color: 0x2b241d, emissive: 0xff5a18, emissiveIntensity: 0.18, roughness: 0.72, metalness: 0.42 })));
+  const bomb = makeFastProjectile(projectileAssets.bombGeometry, projectileAssets.bombMaterial);
   bomb.position.copy(aircraft.position);
   bomb.scale.set(1, 1.18, 1);
   bomb.userData.velocity = new THREE.Vector3(aircraft.userData.strafeX * 0.1, -0.5, aircraft.userData.speed * 0.3);
   bomb.userData.targetLane = randomLane();
-  const bombGlow = new THREE.PointLight(0xff7a22, 0.55, 4.5, 2);
-  bombGlow.castShadow = false;
-  bomb.add(bombGlow);
   scene.add(bomb);
   enemyBombs.push(bomb);
 }
 
 function fireEnemyBullet(aircraft) {
-  const bullet = setupMesh(new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 1.15, 10), new THREE.MeshStandardMaterial({ color: 0xffd36a, emissive: 0xff7a00, emissiveIntensity: 1.25 })));
+  const bullet = makeFastProjectile(projectileAssets.enemyBulletGeometry, projectileAssets.enemyBulletMaterial);
   bullet.rotation.x = Math.PI / 2;
   bullet.position.set(aircraft.position.x + (Math.random() - 0.5) * 2, aircraft.position.y, aircraft.position.z);
   const targetX = tankBase.position.x + (Math.random() - 0.5) * 3;
@@ -1199,9 +1240,6 @@ function fireEnemyBullet(aircraft) {
   bullet.userData.velocity = dir.multiplyScalar(42);
   bullet.userData.hitHalfX = 1.2;
   bullet.userData.hitHalfZ = 1.65;
-  const bulletGlow = new THREE.PointLight(0xffa22a, 0.65, 4.2, 2);
-  bulletGlow.castShadow = false;
-  bullet.add(bulletGlow);
   scene.add(bullet);
   enemyBullets.push(bullet);
 }
@@ -1241,7 +1279,7 @@ function updateAircrafts(delta) {
       ac.userData.bulletTimer = 0.5 + Math.random() * 0.8;
     }
     if (ac.position.z > 50) {
-      scene.remove(ac);
+      removeFromScene(ac);
       aircrafts.splice(i, 1);
     }
   }
@@ -1258,7 +1296,7 @@ function updateAircrafts(delta) {
       crater.position.set(bomb.userData.targetLane, 0, bomb.position.z);
       scene.add(crater);
       obstacles.push(crater);
-      scene.remove(bomb);
+      removeFromScene(bomb);
       enemyBombs.splice(i, 1);
       // Damage if close
       const dx = Math.abs(bomb.position.x - tankBase.position.x);
@@ -1267,7 +1305,7 @@ function updateAircrafts(delta) {
       continue;
     }
     if (bomb.position.y < -5 || bomb.position.z > 30) {
-      scene.remove(bomb);
+      removeFromScene(bomb);
       enemyBombs.splice(i, 1);
     }
   }
@@ -1282,12 +1320,12 @@ function updateAircrafts(delta) {
     if (dx < (bullet.userData.hitHalfX ?? 1.2) && dz < (bullet.userData.hitHalfZ ?? 1.65) && dy < 2.5 && dy > 0) {
       damage(12);
       applyCameraShake(0.3);
-      scene.remove(bullet);
+      removeFromScene(bullet);
       enemyBullets.splice(i, 1);
       continue;
     }
     if (bullet.position.y < -1 || bullet.position.z > 30 || bullet.position.z < -130) {
-      scene.remove(bullet);
+      removeFromScene(bullet);
       enemyBullets.splice(i, 1);
     }
   }
@@ -1316,13 +1354,10 @@ function shoot() {
   if (!game.running || game.over) return;
   applyCameraShake(0.25);
   playTankCannonSound();
-  const shell = makeCylinder(0.2, 0.2, 0.88, 16, materials.shell);
+  const shell = makeFastProjectile(projectileAssets.tankShellGeometry, projectileAssets.tankShellMaterial);
   shell.rotation.x = Math.PI / 2;
   shell.position.set(tankBase.position.x, 1.72, tankBase.position.z - 2.05);
   shell.userData.velocity = new THREE.Vector3(0, 0, -42);
-  const shellGlow = new THREE.PointLight(0xffd36d, 0.72, 4.8, 2);
-  shellGlow.castShadow = false;
-  shell.add(shellGlow);
   scene.add(shell);
   projectiles.push(shell);
 }
@@ -1421,7 +1456,7 @@ function tankDeathExplosion() {
   const flash = new THREE.PointLight(0xff6600, 8, 30);
   flash.position.set(tankBase.position.x, 3, tankBase.position.z);
   scene.add(flash);
-  setTimeout(() => scene.remove(flash), 300);
+  setTimeout(() => removeFromScene(flash), 300);
 }
 
 // --- PROCEDURAL AUDIO ---
@@ -1538,14 +1573,14 @@ function playExplosionSound() {
 }
 
 function resetGame() {
-  [...obstacles, ...enemies, ...projectiles, ...aircrafts, ...enemyBombs, ...enemyBullets].forEach((object) => scene.remove(object));
+  [...obstacles, ...enemies, ...projectiles, ...aircrafts, ...enemyBombs, ...enemyBullets].forEach(removeFromScene);
   obstacles.length = 0;
   enemies.length = 0;
   projectiles.length = 0;
   aircrafts.length = 0;
   enemyBombs.length = 0;
   enemyBullets.length = 0;
-  explosions.forEach((object) => scene.remove(object));
+  explosions.forEach(removeFromScene);
   explosions.length = 0;
   game.running = false;
   game.over = false;
@@ -1705,7 +1740,8 @@ function updateTank(delta, elapsed) {
   // Dust Particles
   if (game.running && Math.random() < 0.45) {
     const dustGrp = new THREE.Group();
-    const dust = setupMesh(new THREE.Mesh(new THREE.SphereGeometry(0.25 + Math.random() * 0.2, 6, 6), materials.mud));
+    const dust = makeFastProjectile(projectileAssets.dustGeometry, materials.mud);
+    dust.scale.setScalar(0.25 + Math.random() * 0.2);
     dust.position.set(tankBase.position.x + (Math.random() > 0.5 ? 1.3 : -1.3), 0.2, tankBase.position.z + 1.6);
     dust.userData.velocity = new THREE.Vector3((Math.random() - 0.5) * 1.5, 1.5 + Math.random() * 2, 6 + Math.random() * 3);
     dustGrp.add(dust);
@@ -1740,12 +1776,12 @@ function updateHazards(delta, elapsed) {
     if (dz < 1.75 && dx < obstacle.userData.radius + 0.72) {
       damage(obstacle.userData.kind === 'crater' ? 28 : 18);
       makeExplosion(new THREE.Vector3(obstacle.position.x, 0.7, obstacle.position.z));
-      scene.remove(obstacle);
+      removeFromScene(obstacle);
       obstacles.splice(i, 1);
       continue;
     }
     if (obstacle.position.z > 20) {
-      scene.remove(obstacle);
+      removeFromScene(obstacle);
       obstacles.splice(i, 1);
     }
   }
@@ -1766,12 +1802,12 @@ function updateHazards(delta, elapsed) {
     if (dz < 1.7 && dx < 1.35) {
       damage(24);
       makeExplosion(new THREE.Vector3(enemy.position.x, 1, enemy.position.z));
-      scene.remove(enemy);
+      removeFromScene(enemy);
       enemies.splice(i, 1);
       continue;
     }
     if (enemy.position.z > 22) {
-      scene.remove(enemy);
+      removeFromScene(enemy);
       enemies.splice(i, 1);
     }
   }
@@ -1788,7 +1824,7 @@ function updateProjectiles(delta) {
       if (projectile.position.distanceTo(enemy.position.clone().add(new THREE.Vector3(0, 1, 0))) < 1.2) {
         game.score += 120;
         makeExplosion(new THREE.Vector3(enemy.position.x, 1.2, enemy.position.z));
-        scene.remove(enemy);
+        removeFromScene(enemy);
         enemies.splice(j, 1);
         hit = true;
         break;
@@ -1800,7 +1836,7 @@ function updateProjectiles(delta) {
         if (obstacle.userData.kind !== 'crater' && projectile.position.distanceTo(obstacle.position.clone().add(new THREE.Vector3(0, 0.6, 0))) < 1.15) {
           game.score += 45;
           makeExplosion(new THREE.Vector3(obstacle.position.x, 0.8, obstacle.position.z));
-          scene.remove(obstacle);
+          removeFromScene(obstacle);
           obstacles.splice(j, 1);
           hit = true;
           break;
@@ -1808,7 +1844,7 @@ function updateProjectiles(delta) {
       }
     }
     if (hit || projectile.position.z < -125) {
-      scene.remove(projectile);
+      removeFromScene(projectile);
       projectiles.splice(i, 1);
     }
   }
@@ -1824,7 +1860,7 @@ function updateExplosions(delta) {
       spark.scale.multiplyScalar(0.985);
     });
     if (explosion.userData.life <= 0) {
-      scene.remove(explosion);
+      removeFromScene(explosion);
       explosions.splice(i, 1);
     }
   }
