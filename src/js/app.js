@@ -128,7 +128,7 @@ const materials = {
   barrel: new THREE.MeshStandardMaterial({ color: 0x2a2a28, roughness: 0.7, metalness: 0.4 }),
   barrelRust: new THREE.MeshStandardMaterial({ color: 0x5a2d1a, roughness: 0.9, metalness: 0.2 }),
   fire: new THREE.MeshStandardMaterial({ color: 0xff6622, emissive: 0xff4400, emissiveIntensity: 1.2, transparent: true, opacity: 0.7, depthWrite: false }),
-  mountain: new THREE.MeshStandardMaterial({ color: 0x1a1510, roughness: 1 }),
+  mountain: new THREE.MeshStandardMaterial({ color: 0x4a3d2e, roughness: 1, fog: true }),
   aircraft: new THREE.MeshStandardMaterial({ color: 0x3a3a38, roughness: 0.6, metalness: 0.5 })
 };
 
@@ -737,16 +737,20 @@ const jungleChunks = [chunk1, chunk2];
 // --- MOUNTAINS ---
 const mountains = new THREE.Group();
 scene.add(mountains);
-for (let i = 0; i < 18; i++) {
-  const mw = 15 + Math.random() * 25;
-  const mh = 8 + Math.random() * 18;
-  const mGeo = new THREE.ConeGeometry(mw, mh, 5 + Math.floor(Math.random() * 3));
+for (let i = 0; i < 14; i++) {
+  const mw = 12 + Math.random() * 18;
+  const mh = 7 + Math.random() * 13;
+  const mGeo = new THREE.ConeGeometry(mw, mh, 6);
   const mMat = materials.mountain.clone();
-  mMat.color.setHex([0x1a1510, 0x151008, 0x1e1812][i % 3]);
+  mMat.color.setHex([0x4a3d2e, 0x5a4935, 0x3f382f][i % 3]);
+  mMat.emissive = new THREE.Color(0x17120d);
+  mMat.emissiveIntensity = 0.12;
   const mount = new THREE.Mesh(mGeo, mMat);
   const side = i % 2 === 0 ? -1 : 1;
-  mount.position.set(side * (30 + Math.random() * 40), mh * 0.4, -20 - i * 18);
+  mount.position.set(side * (82 + Math.random() * 52), mh * 0.36, -48 - i * 22);
+  mount.rotation.y = Math.random() * Math.PI * 2;
   mount.castShadow = false;
+  mount.receiveShadow = false;
   mountains.add(mount);
 }
 
