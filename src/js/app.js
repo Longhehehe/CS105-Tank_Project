@@ -6,6 +6,8 @@ scene.fog = new THREE.FogExp2(0x5a3f2b, 0.014);
 
 const camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 0.1, 360);
 camera.position.set(0, 7.2, 14);
+const cameraBasePosition = camera.position.clone();
+const cameraShakeOffset = new THREE.Vector3();
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -75,7 +77,7 @@ setTimeout(() => {
   }
 }, 500);
 
-const ambientLight = new THREE.AmbientLight(0xd8bc8d, 0.82);
+const ambientLight = new THREE.AmbientLight(0xd8bc8d, 0.94);
 scene.add(ambientLight);
 
 const sun = new THREE.DirectionalLight(0xffe0b0, 1.45);
@@ -90,18 +92,22 @@ sun.shadow.camera.top = 28;
 sun.shadow.camera.bottom = -28;
 scene.add(sun);
 
-const fillLight = new THREE.HemisphereLight(0xc89f72, 0x4c3525, 0.68);
+const fillLight = new THREE.HemisphereLight(0xc89f72, 0x4c3525, 0.86);
 scene.add(fillLight);
 
 const renderables = new Set();
 let currentRenderMode = 'solid';
 
 const materials = {
-  road: new THREE.MeshStandardMaterial({ color: 0x4b2d1b, roughness: 0.98 }),
+  road: new THREE.MeshStandardMaterial({ color: 0x6f3b22, roughness: 0.92, metalness: 0.02 }),
+  roadEdge: new THREE.MeshStandardMaterial({ color: 0x5a3a20, roughness: 0.96 }),
   mud: new THREE.MeshStandardMaterial({ color: 0x6f351d, roughness: 1 }),
-  sideGround: new THREE.MeshStandardMaterial({ color: 0x6b321c, roughness: 1 }),
+  sideGround: new THREE.MeshStandardMaterial({ color: 0x3f4f27, roughness: 0.98 }),
   grass: new THREE.MeshStandardMaterial({ color: 0x1a3318, roughness: 0.95 }),
-  jungle: new THREE.MeshStandardMaterial({ color: 0x0f2a15, roughness: 0.88 }),
+  jungle: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.88, vertexColors: true, emissive: 0x24451d, emissiveIntensity: 0.42 }),
+  jungleDeep: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.94, vertexColors: true, emissive: 0x163214, emissiveIntensity: 0.34 }),
+  jungleTip: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.82, vertexColors: true, emissive: 0x3e5a18, emissiveIntensity: 0.46 }),
+  bark: new THREE.MeshStandardMaterial({ color: 0x4a2c18, roughness: 0.96, vertexColors: true }),
   tank: new THREE.MeshStandardMaterial({ color: 0x2e4420, roughness: 0.82, metalness: 0.2 }),
   tankDark: new THREE.MeshStandardMaterial({ color: 0x141a0e, roughness: 0.88, metalness: 0.22 }),
   tankLight: new THREE.MeshStandardMaterial({ color: 0x4a5e2e, roughness: 0.8, metalness: 0.14 }),
@@ -121,6 +127,10 @@ const materials = {
   mountain: new THREE.MeshStandardMaterial({ color: 0x1a1510, roughness: 1 }),
   aircraft: new THREE.MeshStandardMaterial({ color: 0x3a3a38, roughness: 0.6, metalness: 0.5 })
 };
+
+if (THREE.Cache) {
+  THREE.Cache.enabled = true;
+}
 
 const textureLoader = new THREE.TextureLoader();
 const maxAnisotropy = renderer.capabilities.getMaxAnisotropy ? renderer.capabilities.getMaxAnisotropy() : 1;
@@ -203,11 +213,11 @@ function applyTextureSetToMaterial(material, textureSet, options = {}) {
 }
 
 function applyDefaultTextures() {
-  applyTextureSetToMaterial(materials.road, textureAssets.muddyGround, { repeat: [1.5, 4], normalScale: 0.32, tint: 0x4b2d1b, useColorMap: false });
+  applyTextureSetToMaterial(materials.road, textureAssets.muddyGround, { repeat: [1.15, 8.5], normalScale: 0.62, tint: 0x9a512c });
+  applyTextureSetToMaterial(materials.roadEdge, textureAssets.muddyGround, { repeat: [0.9, 8.5], normalScale: 0.48, tint: 0x7d4b2a });
   applyTextureSetToMaterial(materials.mud, textureAssets.muddyGround, { repeat: [3.2, 3.2], normalScale: 0.45, tint: 0x7a3b21 });
-  applyTextureSetToMaterial(materials.sideGround, textureAssets.muddyGround, { repeat: [2.8, 2.8], normalScale: 0.22, tint: 0x6b321c, useColorMap: false });
+  applyTextureSetToMaterial(materials.sideGround, textureAssets.mossGround, { repeat: [5.5, 7.5], normalScale: 0.45, tint: 0x586c37 });
   applyTextureSetToMaterial(materials.grass, textureAssets.mossGround, { repeat: [5, 5], normalScale: 0.5, tint: 0x78995a });
-  applyTextureSetToMaterial(materials.jungle, textureAssets.mossGround, { repeat: [2.5, 2.5], normalScale: 0.35, tint: 0x5f7f43 });
   applyTextureSetToMaterial(materials.tank, textureAssets.tankCamo, { repeat: [1.7, 1.7], normalScale: 0.35, tint: 0xf0efc7, emissive: 0x253514, emissiveIntensity: 0.12 });
   applyTextureSetToMaterial(materials.tankDark, textureAssets.tankCamo, { repeat: [1.45, 1.45], normalScale: 0.32, tint: 0xb8bd86, emissive: 0x1c2810, emissiveIntensity: 0.1 });
   applyTextureSetToMaterial(materials.tankLight, textureAssets.tankCamo, { repeat: [1.25, 1.25], normalScale: 0.3, tint: 0xfff3bd, emissive: 0x2f3817, emissiveIntensity: 0.12 });
@@ -254,7 +264,21 @@ float snoise(vec2 v){
 const injectMudShader = (shader) => {
   shader.vertexShader = shader.vertexShader.replace(
     '#include <common>',
-    `#include <common>\nvarying vec3 vWPos;`
+    `#include <common>
+varying vec3 vWPos;
+varying vec3 vRoadLocal;
+varying vec2 vRoadUv;
+${glslNoise}`
+  ).replace(
+    '#include <begin_vertex>',
+    `#include <begin_vertex>
+    vRoadLocal = position.xyz;
+    vRoadUv = uv;
+    float roadHeightNoise = snoise(vec2(position.x * 0.6, position.y * 0.09));
+    float roadFineNoise = snoise(vec2(position.x * 2.4, position.y * 0.34));
+    float rutShape = 1.0 - smoothstep(0.12, 0.62, min(abs(abs(position.x) - 2.05), abs(position.x) * 1.35));
+    transformed.z += roadHeightNoise * 0.07 + roadFineNoise * 0.018 - rutShape * 0.035;
+    `
   ).replace(
     '#include <worldpos_vertex>',
     `#include <worldpos_vertex>\nvWPos = (modelMatrix * vec4(transformed, 1.0)).xyz;`
@@ -262,26 +286,49 @@ const injectMudShader = (shader) => {
 
   shader.fragmentShader = shader.fragmentShader.replace(
     '#include <common>',
-    `#include <common>\nvarying vec3 vWPos;\n${glslNoise}`
+    `#include <common>
+varying vec3 vWPos;
+varying vec3 vRoadLocal;
+varying vec2 vRoadUv;
+${glslNoise}`
+  ).replace(
+    '#include <map_fragment>',
+    `#include <map_fragment>
+    float roadMacro = snoise(vWPos.xz * 0.18);
+    float roadGrain = snoise(vWPos.xz * 1.85);
+    float rutVisual = 1.0 - smoothstep(0.12, 0.55, min(abs(abs(vRoadLocal.x) - 2.05), abs(vRoadLocal.x) * 1.4));
+    float roadEdgeFade = smoothstep(4.35, 5.75, abs(vRoadLocal.x));
+    float tireCenter = 1.0 - smoothstep(0.05, 0.45, abs(vRoadLocal.x));
+    vec3 packedMud = vec3(0.45, 0.23, 0.12);
+    vec3 dryDust = vec3(0.56, 0.34, 0.19);
+    vec3 wetMud = vec3(0.16, 0.10, 0.07);
+    diffuseColor.rgb = mix(diffuseColor.rgb, dryDust, 0.24 + roadMacro * 0.08);
+    diffuseColor.rgb = mix(diffuseColor.rgb, packedMud, rutVisual * 0.38);
+    diffuseColor.rgb = mix(diffuseColor.rgb, wetMud, tireCenter * 0.3 + roadEdgeFade * 0.25);
+    diffuseColor.rgb *= 0.9 + roadGrain * 0.12;
+    `
   ).replace(
     '#include <roughnessmap_fragment>',
     `#include <roughnessmap_fragment>
     float n = snoise(vWPos.xz * 0.35);
     float n2 = snoise(vWPos.xz * 1.5);
     float mudNoise = n * 0.6 + n2 * 0.4;
+    float roadRut = 1.0 - smoothstep(0.18, 0.65, min(abs(abs(vRoadLocal.x) - 2.05), abs(vRoadLocal.x) * 1.4));
+    float edgeDamp = smoothstep(4.35, 5.75, abs(vRoadLocal.x));
+    float wetMask = (1.0 - smoothstep(-0.2, 0.5, mudNoise)) * (0.35 + roadRut * 0.45 + edgeDamp * 0.25);
 
     // Damp mud without mirror-like glare.
-    if (mudNoise < -0.15) {
-      roughnessFactor = 0.38;
+    if (wetMask > 0.35) {
+      roughnessFactor = mix(roughnessFactor, 0.42, wetMask);
     } else {
-      roughnessFactor = 0.8 - mudNoise * 0.3;
+      roughnessFactor = 0.78 - mudNoise * 0.22;
     }
     `
   ).replace(
     '#include <metalnessmap_fragment>',
     `#include <metalnessmap_fragment>
-    if (mudNoise < -0.15) {
-      metalnessFactor = max(metalnessFactor, 0.06);
+    if (wetMask > 0.35) {
+      metalnessFactor = max(metalnessFactor, 0.055);
     } else {
       metalnessFactor = min(metalnessFactor, 0.04);
     }
@@ -502,13 +549,30 @@ for (let i = 0; i < 5; i++) {
   segment.receiveShadow = true;
   disableShadowCaster(segment);
   segment.userData.textureRole = 'road';
+  segment.userData.baseX = segment.position.x;
+  segment.userData.baseY = segment.position.y;
   roadGroup.add(segment);
   roadSegments.push(segment);
+
+  for (const side of [-1, 1]) {
+    const roadEdge = setupMesh(new THREE.Mesh(new THREE.PlaneGeometry(0.7, roadLength, 2, 24), materials.roadEdge));
+    roadEdge.rotation.x = -Math.PI / 2;
+    roadEdge.position.set(side * 5.42, 0.026, segment.position.z);
+    disableShadowCaster(roadEdge, false);
+    roadEdge.userData.textureRole = 'roadEdge';
+    roadEdge.userData.baseX = roadEdge.position.x;
+    roadEdge.userData.baseY = roadEdge.position.y;
+    roadGroup.add(roadEdge);
+    roadSegments.push(roadEdge);
+  }
 
   const leftVerge = setupMesh(new THREE.Mesh(new THREE.PlaneGeometry(12, roadLength), materials.sideGround));
   leftVerge.rotation.x = -Math.PI / 2;
   leftVerge.position.set(-11.75, 0.01, segment.position.z);
   disableShadowCaster(leftVerge, false);
+  leftVerge.userData.textureRole = 'verge';
+  leftVerge.userData.baseX = leftVerge.position.x;
+  leftVerge.userData.baseY = leftVerge.position.y;
   roadGroup.add(leftVerge);
 
   const rightVerge = leftVerge.clone();
@@ -517,6 +581,9 @@ for (let i = 0; i < 5; i++) {
   rightVerge.userData.points = null;
   setupMesh(rightVerge);
   disableShadowCaster(rightVerge, false);
+  rightVerge.userData.textureRole = 'verge';
+  rightVerge.userData.baseX = rightVerge.position.x;
+  rightVerge.userData.baseY = rightVerge.position.y;
   roadGroup.add(rightVerge);
   roadSegments.push(leftVerge, rightVerge);
 }
@@ -535,59 +602,113 @@ const scenery = new THREE.Group();
 scene.add(scenery);
 
 // --- INSTANCED JUNGLE ---
-const treeCount = 2000;
-const trunkGeo = new THREE.CylinderGeometry(0.2, 0.25, 2.5, 8);
-const trunkMat = new THREE.MeshStandardMaterial({ color: 0x2a1a0a, roughness: 0.95 });
-const trunkInstanced = new THREE.InstancedMesh(trunkGeo, trunkMat, treeCount);
-trunkInstanced.castShadow = false;
-trunkInstanced.receiveShadow = true;
-trunkInstanced.userData.defaultCastShadow = false;
-
-const crownGeo = new THREE.ConeGeometry(1.5, 4.0, 7);
-const crownMat = materials.jungle.clone();
+const treeCount = 1000;
+const trunkGeo = new THREE.CylinderGeometry(0.16, 0.34, 2.75, 7, 2);
+const crownLowerGeo = new THREE.ConeGeometry(1.95, 3.05, 9, 2);
+const crownMidGeo = new THREE.ConeGeometry(1.45, 2.75, 9, 2);
+const crownTipGeo = new THREE.ConeGeometry(0.96, 2.25, 8, 1);
+const trunkMat = materials.bark.clone();
 
 // Wind Sway Shader
 const customUniforms = { uTime: { value: 0 } };
-crownMat.onBeforeCompile = (shader) => {
-  shader.uniforms.uTime = customUniforms.uTime;
-  shader.vertexShader = shader.vertexShader.replace(
-    '#include <common>',
-    `#include <common>\nuniform float uTime;`
-  ).replace(
-    '#include <begin_vertex>',
-    `#include <begin_vertex>
-    float sway = sin(uTime * 1.2 + instanceMatrix[3][0] * 0.2 + instanceMatrix[3][2] * 0.2) * 0.1;
-    transformed.x += sway * pow(max(0.0, position.y), 1.5);
-    `
-  );
-};
+function makeFoliageMaterial(sourceMaterial, windStrength, cacheKey) {
+  const material = sourceMaterial.clone();
+  material.vertexColors = true;
+  material.metalness = 0;
+  material.side = THREE.DoubleSide;
+  material.onBeforeCompile = (shader) => {
+    shader.uniforms.uTime = customUniforms.uTime;
+    shader.vertexShader = shader.vertexShader.replace(
+      '#include <common>',
+      `#include <common>
+uniform float uTime;
+varying float vLeafHeight;`
+    ).replace(
+      '#include <begin_vertex>',
+      `#include <begin_vertex>
+      vLeafHeight = clamp((position.y + 1.8) / 4.0, 0.0, 1.0);
+      float windPhase = instanceMatrix[3][0] * 0.14 + instanceMatrix[3][2] * 0.09;
+      float sway = sin(uTime * 1.35 + windPhase) * ${windStrength.toFixed(3)};
+      transformed.x += sway * vLeafHeight * vLeafHeight;
+      transformed.z += cos(uTime * 1.05 + windPhase) * ${(
+        windStrength * 0.38
+      ).toFixed(3)} * vLeafHeight;
+      `
+    );
+    shader.fragmentShader = shader.fragmentShader.replace(
+      '#include <common>',
+      `#include <common>
+varying float vLeafHeight;`
+    ).replace(
+      '#include <color_fragment>',
+      `#include <color_fragment>
+      diffuseColor.rgb *= mix(0.92, 1.26, vLeafHeight);
+      diffuseColor.rgb += vec3(0.055, 0.075, 0.025) * (0.35 + smoothstep(0.25, 1.0, vLeafHeight));
+      `
+    );
+  };
+  material.customProgramCacheKey = () => `foliage-${cacheKey}`;
+  return material;
+}
 
-const crownInstanced = new THREE.InstancedMesh(crownGeo, crownMat, treeCount);
-crownInstanced.castShadow = false;
-crownInstanced.receiveShadow = true;
-crownInstanced.userData.defaultCastShadow = false;
+function setupTreeInstanced(mesh) {
+  mesh.castShadow = false;
+  mesh.receiveShadow = true;
+  mesh.frustumCulled = false;
+  mesh.userData.defaultCastShadow = false;
+  return mesh;
+}
+
+const trunkInstanced = setupTreeInstanced(new THREE.InstancedMesh(trunkGeo, trunkMat, treeCount));
+const crownLowerInstanced = setupTreeInstanced(new THREE.InstancedMesh(crownLowerGeo, makeFoliageMaterial(materials.jungleDeep, 0.075, 'lower'), treeCount));
+const crownMidInstanced = setupTreeInstanced(new THREE.InstancedMesh(crownMidGeo, makeFoliageMaterial(materials.jungle, 0.11, 'mid'), treeCount));
+const crownTipInstanced = setupTreeInstanced(new THREE.InstancedMesh(crownTipGeo, makeFoliageMaterial(materials.jungleTip, 0.145, 'tip'), treeCount));
 
 const dummy = new THREE.Object3D();
+const leafBase = new THREE.Color();
+const trunkColor = new THREE.Color();
+
+function setInstanceMatrix(mesh, index, x, y, z, sx, sy, sz, rotationY) {
+  dummy.position.set(x, y, z);
+  dummy.scale.set(sx, sy, sz);
+  dummy.rotation.set(0, rotationY, 0);
+  dummy.updateMatrix();
+  mesh.setMatrixAt(index, dummy.matrix);
+}
+
 for (let i = 0; i < treeCount; i++) {
   const side = Math.random() > 0.5 ? -1 : 1;
-  const x = side * (8 + Math.random() * 45); // Spread out on the sides
-  const z = 40 - Math.random() * 260; // 300 unit long stretch
-  const scale = 0.5 + Math.random() * 1.5;
+  const laneDistance = 10.8 + Math.pow(Math.random(), 1.45) * 45;
+  const x = side * laneDistance;
+  const z = 44 - Math.random() * 280;
+  const scale = 0.48 + Math.random() * 1.1;
+  const widthJitter = 0.68 + Math.random() * 0.42;
+  const heightJitter = 0.82 + Math.random() * 0.48;
+  const rotation = Math.random() * Math.PI * 2;
+  const lean = (Math.random() - 0.5) * 0.16;
 
-  dummy.position.set(x, 1.25 * scale, z);
-  dummy.scale.set(scale, scale, scale);
-  dummy.rotation.y = Math.random() * Math.PI * 2;
-  dummy.updateMatrix();
-  trunkInstanced.setMatrixAt(i, dummy.matrix);
+  trunkColor.setHSL(0.075 + Math.random() * 0.035, 0.42, 0.16 + Math.random() * 0.1);
+  leafBase.setHSL(0.24 + Math.random() * 0.08, 0.44 + Math.random() * 0.18, 0.42 + Math.random() * 0.16);
 
-  dummy.position.set(x, 3.5 * scale, z);
-  dummy.updateMatrix();
-  crownInstanced.setMatrixAt(i, dummy.matrix);
+  setInstanceMatrix(trunkInstanced, i, x + lean, 1.35 * scale * heightJitter, z, scale * 0.78, scale * heightJitter, scale * 0.78, rotation);
+  setInstanceMatrix(crownLowerInstanced, i, x, 2.35 * scale * heightJitter, z, scale * widthJitter, scale * heightJitter, scale * widthJitter, rotation);
+  setInstanceMatrix(crownMidInstanced, i, x + lean * 0.45, 3.35 * scale * heightJitter, z, scale * widthJitter * 0.92, scale * heightJitter, scale * widthJitter * 0.92, rotation + 0.55);
+  setInstanceMatrix(crownTipInstanced, i, x + lean * 0.65, 4.35 * scale * heightJitter, z, scale * widthJitter * 0.72, scale * heightJitter * 0.96, scale * widthJitter * 0.72, rotation + 1.05);
+
+  trunkInstanced.setColorAt(i, trunkColor);
+  crownLowerInstanced.setColorAt(i, leafBase.clone().multiplyScalar(0.92));
+  crownMidInstanced.setColorAt(i, leafBase);
+  crownTipInstanced.setColorAt(i, leafBase.clone().offsetHSL(0.035, 0.08, 0.09));
 }
+
+[trunkInstanced, crownLowerInstanced, crownMidInstanced, crownTipInstanced].forEach((mesh) => {
+  mesh.instanceMatrix.needsUpdate = true;
+  if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+});
 
 // Create two chunks of instanced meshes to tile them infinitely
 const chunk1 = new THREE.Group();
-chunk1.add(trunkInstanced, crownInstanced);
+chunk1.add(trunkInstanced, crownLowerInstanced, crownMidInstanced, crownTipInstanced);
 const chunk2 = chunk1.clone();
 chunk2.position.z = -260; // Offset by the length of the spawn area
 
@@ -610,17 +731,87 @@ for (let i = 0; i < 18; i++) {
   mountains.add(mount);
 }
 
+const flameTexture = makeCanvasTexture(192, 256, (ctx, w, h) => {
+  ctx.clearRect(0, 0, w, h);
+  const glow = ctx.createRadialGradient(w * 0.5, h * 0.68, 6, w * 0.5, h * 0.62, w * 0.48);
+  glow.addColorStop(0, 'rgba(255, 238, 98, 0.95)');
+  glow.addColorStop(0.24, 'rgba(255, 125, 35, 0.78)');
+  glow.addColorStop(0.62, 'rgba(164, 45, 16, 0.34)');
+  glow.addColorStop(1, 'rgba(20, 10, 4, 0)');
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, w, h);
+
+  const core = ctx.createLinearGradient(0, h * 0.16, 0, h * 0.92);
+  core.addColorStop(0, 'rgba(255, 238, 118, 0)');
+  core.addColorStop(0.35, 'rgba(255, 228, 90, 0.84)');
+  core.addColorStop(0.72, 'rgba(255, 91, 28, 0.72)');
+  core.addColorStop(1, 'rgba(50, 10, 4, 0)');
+  ctx.fillStyle = core;
+  ctx.beginPath();
+  ctx.moveTo(w * 0.5, h * 0.12);
+  ctx.bezierCurveTo(w * 0.3, h * 0.42, w * 0.22, h * 0.62, w * 0.36, h * 0.9);
+  ctx.bezierCurveTo(w * 0.52, h * 0.78, w * 0.72, h * 0.86, w * 0.7, h * 0.58);
+  ctx.bezierCurveTo(w * 0.68, h * 0.4, w * 0.58, h * 0.28, w * 0.5, h * 0.12);
+  ctx.fill();
+});
+
+const emberTexture = makeCanvasTexture(96, 96, (ctx, w, h) => {
+  const grad = ctx.createRadialGradient(w / 2, h / 2, 1, w / 2, h / 2, w * 0.45);
+  grad.addColorStop(0, 'rgba(255, 218, 86, 0.95)');
+  grad.addColorStop(0.45, 'rgba(255, 109, 25, 0.48)');
+  grad.addColorStop(1, 'rgba(95, 30, 10, 0)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, w, h);
+});
+
+function makeFireSprite(texture, color, opacity) {
+  return new THREE.SpriteMaterial({
+    map: texture,
+    color,
+    transparent: true,
+    opacity,
+    depthWrite: false,
+    fog: true,
+    blending: THREE.AdditiveBlending
+  });
+}
+
+function makeFireColumn(index) {
+  const group = new THREE.Group();
+  const light = new THREE.PointLight(0xff7a2a, 0.38, 8, 2.1);
+  light.position.set(0, 1.4, 0);
+  light.castShadow = false;
+  group.add(light);
+
+  for (let i = 0; i < 3; i++) {
+    const flame = new THREE.Sprite(makeFireSprite(flameTexture, i === 0 ? 0xffe66c : 0xff7a2a, 0.42 - i * 0.06));
+    flame.position.set((i - 1) * 0.22, 1.05 + i * 0.48, (Math.random() - 0.5) * 0.18);
+    flame.scale.set(1.0 + i * 0.32, 1.85 + i * 0.45, 1);
+    flame.userData.baseScale = flame.scale.clone();
+    flame.userData.basePosition = flame.position.clone();
+    flame.userData.baseOpacity = flame.material.opacity;
+    flame.userData.phase = index * 0.7 + i * 1.4;
+    group.add(flame);
+  }
+
+  for (let i = 0; i < 3; i++) {
+    const ember = new THREE.Sprite(makeFireSprite(emberTexture, 0xffcc55, 0.28));
+    ember.position.set((Math.random() - 0.5) * 1.25, 2.0 + Math.random() * 1.45, (Math.random() - 0.5) * 0.4);
+    ember.scale.setScalar(0.28 + Math.random() * 0.22);
+    ember.userData.baseScale = ember.scale.clone();
+    ember.userData.basePosition = ember.position.clone();
+    ember.userData.baseOpacity = ember.material.opacity;
+    ember.userData.phase = index + i * 0.8;
+    group.add(ember);
+  }
+
+  return group;
+}
+
 // --- FIRE COLUMNS (wartime burning scenery) ---
 const fireColumns = [];
 for (let i = 0; i < 8; i++) {
-  const fireGrp = new THREE.Group();
-  for (let j = 0; j < 4; j++) {
-    const flame = setupMesh(new THREE.Mesh(new THREE.SphereGeometry(0.4 + Math.random() * 0.5, 8, 6), materials.fire.clone()));
-    flame.position.set((Math.random() - 0.5) * 0.8, 1.5 + j * 0.7 + Math.random() * 0.5, 0);
-    flame.castShadow = false;
-    flame.receiveShadow = false;
-    fireGrp.add(flame);
-  }
+  const fireGrp = makeFireColumn(i);
   const side = i % 2 === 0 ? -1 : 1;
   fireGrp.position.set(side * (8 + Math.random() * 12), 0, -20 - i * 30);
   scene.add(fireGrp);
@@ -640,15 +831,88 @@ for (let i = 0; i < 6; i++) {
   paddies.add(paddy);
 }
 
+const cloudTexture = makeCanvasTexture(256, 256, (ctx, w, h) => {
+  ctx.clearRect(0, 0, w, h);
+  ctx.globalCompositeOperation = 'source-over';
+  const blobs = [
+    [0.30, 0.58, 0.26, 0.74],
+    [0.45, 0.43, 0.34, 0.86],
+    [0.62, 0.54, 0.31, 0.78],
+    [0.54, 0.32, 0.24, 0.54],
+    [0.73, 0.62, 0.22, 0.48],
+    [0.21, 0.66, 0.18, 0.42]
+  ];
+
+  blobs.forEach(([x, y, r, a]) => {
+    const grad = ctx.createRadialGradient(x * w, y * h, r * w * 0.08, x * w, y * h, r * w);
+    grad.addColorStop(0, `rgba(255, 246, 220, ${a})`);
+    grad.addColorStop(0.48, `rgba(220, 198, 166, ${a * 0.46})`);
+    grad.addColorStop(1, 'rgba(92, 78, 62, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(x * w, y * h, r * w, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  const shadow = ctx.createLinearGradient(0, h * 0.35, 0, h);
+  shadow.addColorStop(0, 'rgba(255, 240, 208, 0)');
+  shadow.addColorStop(1, 'rgba(74, 59, 47, 0.22)');
+  ctx.fillStyle = shadow;
+  ctx.fillRect(0, 0, w, h);
+});
+
+function makeCloudMaterial(opacity, color = 0xd8c6a7) {
+  return new THREE.SpriteMaterial({
+    map: cloudTexture,
+    color,
+    transparent: true,
+    opacity,
+    depthWrite: false,
+    depthTest: true,
+    fog: true,
+    blending: THREE.NormalBlending
+  });
+}
+
+function makeCloudBank(index) {
+  const group = new THREE.Group();
+  const side = Math.random() > 0.5 ? -1 : 1;
+  const baseScale = 1.2 + Math.random() * 2.3;
+  const layerCount = 7 + Math.floor(Math.random() * 6);
+
+  group.position.set(
+    side * (8 + Math.random() * 28),
+    5.5 + Math.random() * 8.5,
+    -28 - Math.random() * 165
+  );
+  group.userData.drift = (Math.random() - 0.5) * 0.18;
+  group.userData.floatPhase = Math.random() * Math.PI * 2;
+  group.userData.baseY = group.position.y;
+
+  for (let i = 0; i < layerCount; i++) {
+    const t = layerCount <= 1 ? 0 : i / (layerCount - 1);
+    const sprite = new THREE.Sprite(makeCloudMaterial(0.18 + Math.random() * 0.22, i % 3 === 0 ? 0xc5ad8f : 0xe4d3b2));
+    const width = baseScale * (2.0 + Math.random() * 2.2) * (1 - Math.abs(t - 0.5) * 0.35);
+    const height = baseScale * (0.9 + Math.random() * 1.4);
+    sprite.position.set(
+      (Math.random() - 0.5) * baseScale * 5.8,
+      (Math.random() - 0.5) * baseScale * 1.6,
+      (Math.random() - 0.5) * baseScale * 2.4
+    );
+    sprite.scale.set(width, height, 1);
+    sprite.userData.phase = index * 0.73 + i * 0.41 + Math.random() * 2;
+    sprite.userData.baseScale = sprite.scale.clone();
+    group.add(sprite);
+  }
+
+  return group;
+}
+
 const smokePuffs = [];
 for (let i = 0; i < 20; i++) {
-  const puff = setupMesh(new THREE.Mesh(new THREE.SphereGeometry(0.9 + Math.random() * 1.2, 12, 8), materials.smoke));
-  puff.position.set((Math.random() - 0.5) * 35, 2 + Math.random() * 10, -30 - Math.random() * 160);
-  puff.scale.setScalar(1.2 + Math.random() * 2.0);
-  puff.castShadow = false;
-  puff.receiveShadow = false;
-  scenery.add(puff);
-  smokePuffs.push(puff);
+  const cloud = makeCloudBank(i);
+  scenery.add(cloud);
+  smokePuffs.push(cloud);
 }
 
 const tankBase = new THREE.Group();
@@ -910,21 +1174,30 @@ function spawnAircraft() {
 
 function dropBomb(aircraft) {
   playAircraftBombDropSound();
-  const bomb = setupMesh(new THREE.Mesh(new THREE.SphereGeometry(0.25, 8, 6), new THREE.MeshStandardMaterial({ color: 0x1a1a18, roughness: 0.7, metalness: 0.5 })));
+  const bomb = setupMesh(new THREE.Mesh(new THREE.SphereGeometry(0.52, 12, 8), new THREE.MeshStandardMaterial({ color: 0x2b241d, emissive: 0xff5a18, emissiveIntensity: 0.18, roughness: 0.72, metalness: 0.42 })));
   bomb.position.copy(aircraft.position);
+  bomb.scale.set(1, 1.18, 1);
   bomb.userData.velocity = new THREE.Vector3(aircraft.userData.strafeX * 0.1, -0.5, aircraft.userData.speed * 0.3);
   bomb.userData.targetLane = randomLane();
+  const bombGlow = new THREE.PointLight(0xff7a22, 0.55, 4.5, 2);
+  bombGlow.castShadow = false;
+  bomb.add(bombGlow);
   scene.add(bomb);
   enemyBombs.push(bomb);
 }
 
 function fireEnemyBullet(aircraft) {
-  const bullet = setupMesh(new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.6, 6), new THREE.MeshStandardMaterial({ color: 0xffaa22, emissive: 0xff6600, emissiveIntensity: 0.8 })));
+  const bullet = setupMesh(new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 1.15, 10), new THREE.MeshStandardMaterial({ color: 0xffd36a, emissive: 0xff7a00, emissiveIntensity: 1.25 })));
   bullet.rotation.x = Math.PI / 2;
   bullet.position.set(aircraft.position.x + (Math.random() - 0.5) * 2, aircraft.position.y, aircraft.position.z);
   const targetX = tankBase.position.x + (Math.random() - 0.5) * 3;
   const dir = new THREE.Vector3(targetX - bullet.position.x, -bullet.position.y, tankBase.position.z - bullet.position.z).normalize();
-  bullet.userData.velocity = dir.multiplyScalar(55);
+  bullet.userData.velocity = dir.multiplyScalar(42);
+  bullet.userData.hitHalfX = 1.2;
+  bullet.userData.hitHalfZ = 1.65;
+  const bulletGlow = new THREE.PointLight(0xffa22a, 0.65, 4.2, 2);
+  bulletGlow.castShadow = false;
+  bullet.add(bulletGlow);
   scene.add(bullet);
   enemyBullets.push(bullet);
 }
@@ -986,7 +1259,7 @@ function updateAircrafts(delta) {
       // Damage if close
       const dx = Math.abs(bomb.position.x - tankBase.position.x);
       const dz = Math.abs(bomb.position.z - tankBase.position.z);
-      if (dx < 2.5 && dz < 2.5) damage(20);
+      if (dx < 2.25 && dz < 2.25) damage(20);
       continue;
     }
     if (bomb.position.y < -5 || bomb.position.z > 30) {
@@ -1002,7 +1275,7 @@ function updateAircrafts(delta) {
     const dx = Math.abs(bullet.position.x - tankBase.position.x);
     const dz = Math.abs(bullet.position.z - tankBase.position.z);
     const dy = bullet.position.y;
-    if (dx < 1.5 && dz < 2.0 && dy < 2.5 && dy > 0) {
+    if (dx < (bullet.userData.hitHalfX ?? 1.2) && dz < (bullet.userData.hitHalfZ ?? 1.65) && dy < 2.5 && dy > 0) {
       damage(12);
       applyCameraShake(0.3);
       scene.remove(bullet);
@@ -1039,10 +1312,13 @@ function shoot() {
   if (!game.running || game.over) return;
   applyCameraShake(0.25);
   playTankCannonSound();
-  const shell = makeCylinder(0.12, 0.12, 0.55, 12, materials.shell);
+  const shell = makeCylinder(0.2, 0.2, 0.88, 16, materials.shell);
   shell.rotation.x = Math.PI / 2;
   shell.position.set(tankBase.position.x, 1.72, tankBase.position.z - 2.05);
   shell.userData.velocity = new THREE.Vector3(0, 0, -42);
+  const shellGlow = new THREE.PointLight(0xffd36d, 0.72, 4.8, 2);
+  shellGlow.castShadow = false;
+  shell.add(shellGlow);
   scene.add(shell);
   projectiles.push(shell);
 }
@@ -1297,19 +1573,35 @@ function resetGame() {
     }
   });
   updateHud();
-  showMessage('Nhan <strong>Bat dau</strong> de vao tran. A/D doi lan, Space ban ke dich, tranh ho bom, bao cat va thung phi.');
+  showMessage('Nhan <strong>Enter</strong> hoac <strong>Bat dau</strong> de vao tran. A/D doi lan, Space ban ke dich, tranh ho bom, bao cat va thung phi.');
 }
 
 function startGame() {
   if (game.over) resetGame();
   game.running = true;
+  setToolsCollapsed(true);
   hideMessage();
   initAudio();
 }
 
 function pauseGame() {
   game.running = false;
-  showMessage('Dang tam dung. Nhan <strong>Bat dau</strong> de chay tiep.');
+  setToolsCollapsed(false);
+  showMessage('Dang tam dung. Nhan <strong>Enter</strong> hoac <strong>Bat dau</strong> de chay tiep.');
+}
+
+function toggleGameRunning() {
+  if (game.running) {
+    pauseGame();
+  } else {
+    startGame();
+  }
+}
+
+function stopGame() {
+  resetGame();
+  setToolsCollapsed(false);
+  showMessage('Da dung game. Nhan <strong>Enter</strong> de bat dau lai.');
 }
 
 function showMessage(html) {
@@ -1344,10 +1636,11 @@ function updateRoad(delta) {
     // Apply curvature: bend road segments based on distance
     const distFromCam = segment.position.z - camera.position.z;
     const curveFactor = Math.pow(Math.max(0, -distFromCam) * roadCurveAmount, 1.6);
-    if (segment.userData.textureRole === 'road') {
-      segment.position.x = curveShift * curveFactor * 0.015;
-      // Slight Y displacement for depth feel
-      segment.position.y = -Math.abs(distFromCam) * 0.002;
+    if (segment.userData.textureRole === 'road' || segment.userData.textureRole === 'roadEdge' || segment.userData.textureRole === 'verge') {
+      const baseX = segment.userData.baseX ?? 0;
+      const baseY = segment.userData.baseY ?? 0;
+      segment.position.x = baseX + curveShift * curveFactor * 0.015;
+      segment.position.y = baseY - Math.abs(distFromCam) * 0.002;
     }
   }
   laneLines.children.forEach((dash) => {
@@ -1364,9 +1657,11 @@ function updateRoad(delta) {
     object.position.z += move * 0.72;
     if (object.position.z > 32) {
       object.position.z -= 220;
-      if (Math.abs(object.position.x) > 6) {
-        object.position.x = Math.sign(object.position.x || 1) * (9 + Math.random() * 16);
-      }
+      const side = Math.random() > 0.5 ? -1 : 1;
+      object.position.x = side * (9 + Math.random() * 28);
+      object.position.y = 5.5 + Math.random() * 8.5;
+      object.userData.baseY = object.position.y;
+      object.userData.drift = (Math.random() - 0.5) * 0.18;
     }
   });
   paddies.children.forEach((object) => {
@@ -1532,6 +1827,18 @@ function updateExplosions(delta) {
 }
 
 function updateCamera() {
+  camera.position.copy(cameraBasePosition);
+  if (cameraShake > 0.001) {
+    cameraShakeOffset.set(
+      (Math.random() - 0.5) * cameraShake,
+      (Math.random() - 0.5) * cameraShake * 0.55,
+      0
+    );
+    camera.position.add(cameraShakeOffset);
+    cameraShake *= 0.86;
+  } else {
+    cameraShake = 0;
+  }
   const lookAt = new THREE.Vector3(tankBase.position.x * 0.08, 1.2, tankBase.position.z - 7);
   camera.lookAt(lookAt);
 }
@@ -1556,18 +1863,28 @@ function updateGame(delta, elapsed) {
   updateExplosions(delta);
   updateAircrafts(delta);
   customUniforms.uTime.value = elapsed;
-  smokePuffs.forEach((puff, index) => {
-    puff.position.x += Math.sin(elapsed * 0.4 + index) * delta * 0.12;
-    puff.position.y += Math.sin(elapsed * 0.3 + index * 0.7) * delta * 0.04;
-    puff.rotation.y += delta * 0.15;
+  smokePuffs.forEach((cloud, index) => {
+    cloud.position.x += (Math.sin(elapsed * 0.18 + index) * 0.08 + cloud.userData.drift) * delta;
+    cloud.position.y = cloud.userData.baseY + Math.sin(elapsed * 0.22 + cloud.userData.floatPhase) * 0.28;
+    cloud.rotation.z = Math.sin(elapsed * 0.12 + index) * 0.035;
+    cloud.children.forEach((sprite) => {
+      const pulse = 1 + Math.sin(elapsed * 0.25 + sprite.userData.phase) * 0.025;
+      sprite.scale.copy(sprite.userData.baseScale).multiplyScalar(pulse);
+    });
   });
   // Animate fire columns
   fireColumns.forEach((fc, fi) => {
-    fc.children.forEach((flame, fj) => {
-      flame.scale.setScalar(0.8 + Math.sin(elapsed * 5 + fi + fj * 2) * 0.4);
-      flame.position.y = 1.5 + fj * 0.7 + Math.sin(elapsed * 8 + fj) * 0.3;
-      if (flame.material && flame.material.opacity !== undefined) {
-        flame.material.opacity = 0.5 + Math.sin(elapsed * 6 + fj) * 0.3;
+    fc.children.forEach((part, fj) => {
+      if (part.isLight) {
+        part.intensity = 0.34 + Math.sin(elapsed * 5.2 + fi) * 0.08;
+        return;
+      }
+      if (!part.userData.baseScale) return;
+      const flicker = 1 + Math.sin(elapsed * 5.6 + part.userData.phase) * 0.12;
+      part.scale.copy(part.userData.baseScale).multiplyScalar(flicker);
+      part.position.y = part.userData.basePosition.y + Math.sin(elapsed * 2.2 + part.userData.phase) * 0.08;
+      if (part.material && part.material.opacity !== undefined) {
+        part.material.opacity = part.userData.baseOpacity + Math.sin(elapsed * 4.4 + part.userData.phase) * 0.05;
       }
     });
   });
@@ -1642,7 +1959,8 @@ function updateCameraFromUi() {
   const camZ = Number(document.getElementById('camZ').value);
   const near = Number(document.getElementById('near').value);
   const far = Number(document.getElementById('far').value);
-  camera.position.set(camX, camY, camZ);
+  cameraBasePosition.set(camX, camY, camZ);
+  camera.position.copy(cameraBasePosition);
   camera.near = near;
   camera.far = far;
   camera.updateProjectionMatrix();
@@ -1711,6 +2029,19 @@ document.getElementById('restartBtn').addEventListener('click', () => {
   startGame();
 });
 
+const toolsToggle = document.getElementById('toolsToggle');
+function setToolsCollapsed(collapsed) {
+  document.body.classList.toggle('tools-collapsed', collapsed);
+  toolsToggle.setAttribute('aria-pressed', String(collapsed));
+  toolsToggle.setAttribute('aria-label', collapsed ? 'Hien thanh cong cu' : 'An thanh cong cu');
+  toolsToggle.title = collapsed ? 'Hien thanh cong cu' : 'An thanh cong cu';
+}
+
+toolsToggle.addEventListener('click', () => {
+  setToolsCollapsed(!document.body.classList.contains('tools-collapsed'));
+  toolsToggle.blur();
+});
+
 document.querySelectorAll('#renderMode button').forEach((button) => {
   button.addEventListener('click', () => applyRenderMode(button.dataset.mode));
 });
@@ -1755,8 +2086,24 @@ document.getElementById('shadowToggle').addEventListener('change', (event) => {
   });
 });
 
+function isInteractiveTarget(target) {
+  return Boolean(target && target.closest && target.closest('input, select, textarea, button'));
+}
+
 window.addEventListener('keydown', (event) => {
   if (event.repeat) return;
+  if (!isInteractiveTarget(event.target)) {
+    if (event.code === 'Enter') {
+      event.preventDefault();
+      toggleGameRunning();
+      return;
+    }
+    if (event.code === 'Backspace' || event.code === 'BrowserBack' || event.key === 'Back') {
+      event.preventDefault();
+      stopGame();
+      return;
+    }
+  }
   keys.add(event.code);
   if (event.code === 'KeyA') setLane(-1);
   if (event.code === 'KeyD') setLane(1);
@@ -1812,13 +2159,6 @@ function animate() {
   const delta = Math.min(clock.getDelta(), 0.05);
   const elapsed = clock.elapsedTime;
   updateGame(delta, elapsed);
-
-  // Camera Shake
-  if (cameraShake > 0) {
-    camera.position.x += (Math.random() - 0.5) * cameraShake;
-    camera.position.y += (Math.random() - 0.5) * cameraShake;
-    cameraShake *= 0.9;
-  }
 
   if (composer) {
     composer.render();

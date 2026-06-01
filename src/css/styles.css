@@ -120,6 +120,64 @@ h1 {
   overflow: auto;
   border-radius: 8px;
   padding: 10px;
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+}
+
+.tools-toggle {
+  position: absolute;
+  right: 16px;
+  top: 108px;
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  border-radius: 999px;
+  pointer-events: auto;
+  backdrop-filter: blur(14px);
+  background: var(--panel-strong);
+  border: 1px solid var(--line);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.22);
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1);
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease, background 0.15s ease;
+}
+
+.tools-toggle::before,
+.tools-toggle::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.tools-toggle::before {
+  top: 15px;
+  box-shadow: 0 6px 0 var(--accent);
+}
+
+.tools-toggle::after {
+  top: 27px;
+}
+
+.tools-toggle:hover {
+  background: rgba(228, 196, 106, 0.2);
+}
+
+body.tools-collapsed .tools {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-18px);
+  pointer-events: none;
+}
+
+body.tools-collapsed .tools-toggle {
+  background: rgba(228, 196, 106, 0.2);
 }
 
 details {
@@ -260,5 +318,10 @@ button:active {
     top: auto;
     bottom: 96px;
     max-height: 42vh;
+  }
+
+  .tools-toggle {
+    top: 194px;
+    bottom: auto;
   }
 }
