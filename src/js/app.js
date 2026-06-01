@@ -1,8 +1,8 @@
 const lanes = [-4, 0, 4];
 const clock = new THREE.Clock();
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x5a3f2b);
-scene.fog = new THREE.FogExp2(0x5a3f2b, 0.014);
+scene.background = new THREE.Color(0x6a4b36);
+scene.fog = new THREE.FogExp2(0x6a4b36, 0.0115);
 
 const camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 0.1, 360);
 camera.position.set(0, 7.2, 14);
@@ -15,6 +15,8 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.98;
 document.body.appendChild(renderer.domElement);
 
 let composer, customColorPass;
@@ -25,7 +27,7 @@ function initPostProcessing() {
   const renderPass = new THREE.RenderPass(scene, camera);
   composer.addPass(renderPass);
 
-  const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.6, 0.4, 0.85);
+  const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.2, 0.18, 0.9);
   composer.addPass(bloomPass);
 
   const colorGradeShader = {
@@ -43,26 +45,28 @@ function initPostProcessing() {
       void main() {
         vec4 tex = texture2D(tDiffuse, vUv);
         vec3 color = tex.rgb;
-        color = smoothstep(0.02, 0.98, color); // Contrast
+        color = pow(color, vec3(0.95));
+        color = smoothstep(0.0, 1.0, color);
         float luma = dot(color, vec3(0.299, 0.587, 0.114));
-        vec3 warmTint = vec3(1.15, 1.05, 0.85);
-        vec3 greenTint = vec3(0.85, 1.15, 0.75);
-        color = mix(color, color * warmTint, 0.35);
-        color = mix(color, color * greenTint, luma * 0.4);
-        color = mix(vec3(luma), color, 0.8); // Desaturate
-        gl_FragColor = vec4(color, tex.a);
+        vec3 warmTint = vec3(1.08, 1.03, 0.94);
+        vec3 greenTint = vec3(0.96, 1.08, 0.9);
+        color = mix(color, color * warmTint, 0.18);
+        color = mix(color, color * greenTint, luma * 0.16);
+        color = mix(vec3(luma), color, 1.08);
+        color *= 1.02;
+        gl_FragColor = vec4(clamp(color, 0.0, 1.0), tex.a);
       }
     `
   };
   customColorPass = new THREE.ShaderPass(colorGradeShader);
   composer.addPass(customColorPass);
 
-  const filmPass = new THREE.FilmPass(0.3, 0.0, 0, false);
+  const filmPass = new THREE.FilmPass(0.12, 0.0, 0, false);
   composer.addPass(filmPass);
 
   const vignettePass = new THREE.ShaderPass(THREE.VignetteShader);
-  vignettePass.uniforms.offset.value = 1.45;
-  vignettePass.uniforms.darkness.value = 0.48;
+  vignettePass.uniforms.offset.value = 0.0;
+  vignettePass.uniforms.darkness.value = 1.0;
   composer.addPass(vignettePass);
 }
 
@@ -77,10 +81,10 @@ setTimeout(() => {
   }
 }, 500);
 
-const ambientLight = new THREE.AmbientLight(0xd8bc8d, 0.94);
+const ambientLight = new THREE.AmbientLight(0xffdfaa, 1.0);
 scene.add(ambientLight);
 
-const sun = new THREE.DirectionalLight(0xffe0b0, 1.45);
+const sun = new THREE.DirectionalLight(0xffe0b0, 1.52);
 sun.position.set(-14, 24, 18);
 sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048);
@@ -92,7 +96,7 @@ sun.shadow.camera.top = 28;
 sun.shadow.camera.bottom = -28;
 scene.add(sun);
 
-const fillLight = new THREE.HemisphereLight(0xc89f72, 0x4c3525, 0.86);
+const fillLight = new THREE.HemisphereLight(0xf2d59a, 0x5d5638, 0.94);
 scene.add(fillLight);
 
 const renderables = new Set();
