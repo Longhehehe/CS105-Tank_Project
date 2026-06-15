@@ -1,64 +1,87 @@
-# Tank Runner 3D - Computer Graphics Project
+# CS105 - Tank Project (Tank Runner 3D)
 
-Project do hoa may tinh bang Three.js: game xe tang 3D chay vo han tren duong Truong Son, co dieu khien camera, affine transform, texture, anh sang, bong do, model loader va nhieu che do hien thi.
+## 📌 Giới thiệu về dự án
 
-## Cach chay
+**Tank Runner 3D** là một dự án game 3D thuộc môn Đồ họa Máy tính (CS105). Lấy cảm hứng từ thể loại trò chơi chạy vô tận (endless runner), người chơi sẽ điều khiển một chiếc xe tăng di chuyển liên tục, né tránh chướng ngại vật đồng thời có thể ngắm bắn các mục tiêu trên đường. 
 
-Nen chay bang local server de texture va model duoc nap dung:
+Dự án được xây dựng hoàn toàn trên nền tảng Web với **HTML/CSS/JS** và thư viện **Three.js**, là minh chứng cho việc ứng dụng lý thuyết Đồ họa Máy tính vào thực tiễn, bao gồm:
+- **Biến đổi Affine gốc**: Tịnh tiến (Translation), Quay (Rotation), và Tỉ lệ (Scaling) các vật thể 3D.
+- **Ánh sáng & Đổ bóng (Lighting & Shading)**: Áp dụng đa dạng các loại ánh sáng (Ambient, Hemisphere, Directional, Point Light) kết hợp bóng đổ thời gian thực (Shadows).
+- **Vật liệu và Texture (Materials)**: Sử dụng các mô hình chiếu sáng PBR với roughness, metalness, normal maps, texture repeat và anisotropy.
+- **Loaders cho Mô hình 3D**: Tích hợp hệ thống nạp Object 3D phức tạp (GLTF, GLB, FBX) tự cấu hình linh hoạt.
+- **Thuật toán & Game Loop**: Vòng lặp trò chơi xử lý animation, di chuyển vật thể, quản lý đạn, hiệu ứng cháy nổ.
+- **Chế độ hiển thị**: Hỗ trợ chuyển đổi hiển thị giữa Point (điểm), Line (wireframe/khung xương dây), và Solid (đổ khối đặc).
 
+---
+
+## 🛠 Hướng dẫn cài đặt & Khởi chạy trên Windows
+
+Vì game bao hàm các tài nguyên ngoại tuyến như Models (.gltf, .fbx...) và Textures (hình ảnh) nên máy tính cần phải chạy trên một máy chủ cục bộ (Local Server) nhằm vượt qua các quy định an ninh (CORS policy) của trình duyệt. 
+
+Làm theo các bước sau để thiết lập project và trải nghiệm ngay:
+
+### Bước 1: Clone dự án về máy tính
+Mở **Command Prompt**, **PowerShell** hoặc **Git Bash** và chạy lệnh:
 ```bash
-python -m http.server 5500
+git clone <địa_chỉ_repo_github_của_dự_án>
+cd CS105-Tank_Project
 ```
+*(Nếu bạn tải file `.zip` trực tiếp từ Github thì hãy giải nén và mở Terminal tại thư mục gốc của project).*
 
-Sau do mo:
+---
 
-```text
-http://localhost:5500
-```
+### Bước 2: Khởi chạy dự án (Chọn 1 trong 3 cách sau)
 
-Neu muon dung npm tren PowerShell Windows:
+Chúng tôi cung cấp 3 cách dễ dàng nhất trên Windows để bạn chạy dự án. Bạn chỉ cần chọn **một cách** thuận tiện nhất với mình.
 
-```bash
-npm.cmd run dev
-```
+#### 🟢 Cách 1: Sử dụng Visual Studio Code (Dễ nhất & Khuyên dùng)
+1. Mở thư mục `CS105-Tank_Project` vừa clone bằng **Visual Studio Code**.
+2. Sang tab Extensions (`Ctrl + Shift + X`), tìm và cài đặt tiện ích **Live Server** (của tác giả Ritwick Dey).
+3. Sau khi cài đặt xong, bấm mở file `index.html` trong khu vực Explorer.
+4. Nhấn **chuột phải** vào màn hình code của file `index.html` chọn **"Open with Live Server"** (Hoặc nhìn xuống cạnh viền dưới cùng bên phải màn hình VS Code sẽ có nút **"Go Live"**, Click trực tiếp vào nút đó).
+5. Trình duyệt sẽ được khởi chạy tự động tại địa chỉ `http://127.0.0.1:5500`.
 
-Neu dung VS Code, co the mo thu muc project va chay bang Live Server.
+#### 🔵 Cách 2: Sử dụng Python (Dành cho máy đã cài sẵn Python)
+1. Mở Command Prompt hoặc PowerShell tại vị trí thư mục dự án `CS105-Tank_Project`.
+2. Chạy lệnh sau để bật Web Server:
+   ```cmd
+   python -m http.server 5500
+   ```
+3. Mở trình duyệt Web (Chrome, Edge...) và truy cập URL: [http://localhost:5500](http://localhost:5500).
 
-## Cau truc project
+#### 🟡 Cách 3: Sử dụng NPM (Nếu máy tính đã cài đặt Node.js)
+1. Mở Command Prompt hoặc PowerShell tại thư mục dự án `CS105-Tank_Project`.
+2. Gõ lệnh:
+   ```cmd
+   npm.cmd run dev
+   ```
+3. Mở trình duyệt Web truy cập URL: [http://localhost:5500](http://localhost:5500).
+
+---
+
+## 🎮 Cách điều khiển trong Game
+
+- **Di chuyển xe tăng:** Nhấn phím `A` hoặc `D` (Hoặc phím Mũi tên TRÁI / PHẢI) để xe chuyển làn né chướng ngại vật.
+- **Tấn công (Bắn đạn):** Nhấn phím `Space` (Dấu cách).
+- **Tính năng mở rộng Đồ họa (Bên tay phải màn hình):** Sử dụng các nút bấm Bảng Menu (UI) để quan sát thay đổi đồ họa như bật/tắt bóng đổ, tinh chỉnh biến đổi góc nhìn Camera và đổi hệ số Affine Transform theo ý thích (Scale, Rotate, Translate).
+
+---
+
+## 📁 Cấu trúc thư mục chính của dự án
 
 ```text
 .
-|-- index.html              # Markup va cac script/link chinh
+|-- index.html              # Core file - Entrypoint chính của Web game.
+|-- package.json            # Thông tin đóng gói & command chạy (Nodejs).
+|-- README.md               # File thông tin hướng dẫn về project.
 |-- src/
 |   |-- css/
-|   |   `-- styles.css      # Giao dien HUD va control panel
+|   |   `-- styles.css      # Mã nguồn UI tĩnh cho các Controls, Control Panel.
 |   `-- js/
-|       `-- app.js          # Logic Three.js, game loop, vat the 3D
+|       `-- app.js          # Logic Game chính bằng Three.js (Rendering, Game loop...).
 |-- assets/
-|   `-- textures/           # Texture bitmap va SVG dung trong scene
+|   `-- textures/           # Thư viện lưu trữ Texture (Đường mòn, Vật liệu, Bầu trời...).
 |-- vendor/
-|   `-- three/              # Three.js va loaders chay cuc bo
-|-- docs/                   # Tai lieu ly thuyet/bo sung
-`-- DHMT.docx               # Tai lieu do an goc
+|   `-- three/              # Chứa nhân Three.js nội bộ, các plugin loaders, shader... (Hỗ trợ chạy Offline).
+`-- docs/                   # Tài liệu đọc thêm về lý thuyết đồ họa toán học.
 ```
-
-## Chuc nang do hoa may tinh
-
-- Dung Three.js tao scene 3D, camera phoi canh, WebGL renderer.
-- Mo hinh xe tank duoc ghep bang primitive geometry: box, cylinder, sphere, cone.
-- Vat lieu PBR co roughness, metalness, normal map, texture repeat va anisotropy.
-- Anh sang gom ambient, hemisphere, directional light, shadow map va point light.
-- Co dieu khien affine transform: tinh tien, quay, scale cho xe tank hoac mat duong.
-- Ho tro 3 che do hien thi: point, line, solid.
-- Game loop co animation banh xe, dan, no, khoi, may bay va spawn vat can.
-- Ho tro nap texture bitmap va model FBX/GLB/GLTF tu file nguoi dung.
-
-## Dieu khien
-
-- `A` / `D`: doi lan trai/phai.
-- `Space`: ban dan.
-- Nut UI: bat dau, tam dung, choi lai, doi camera, doi anh sang, reset affine.
-
-## Ghi chu
-
-Thu muc `vendor/three` da co san Three.js, loaders, shaders va post-processing can thiet, nen project co the chay cuc bo qua local server ma khong can CDN.
